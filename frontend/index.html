@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dirección de Calidad de Vida</title>
+  <link rel="stylesheet" href="estilos.css" />
+</head>
+<body>
+
+  <!-- Header institucional -->
+  <header class="header">
+    <div class="banner-superior">
+      <h1>DIRECCIÓN DE CALIDAD DE VIDA</h1>
+      <h2>Municipalidad de Santiago del Estero</h2>
+    </div>
+    <nav class="nav-bar">
+      <a href="#">INICIO</a>
+      <a href="#">BROMATOLGÍA</a>
+      <a href="#">SEGURIDAD</a>
+      <a href="#">SANEAMIENTO</a>
+      <a href="#" class="ingresar" id="ingresar">INGRESAR</a>
+    </nav>
+  </header>
+
+  <!-- Imagen principal con logo -->
+  <section class="hero">
+    <div class="lado-logo">
+      <img src="imagenes/logo_santiago.png" alt="Logo Santiago" />
+      <p>"LEMA INSTITUCIONAL"</p>
+    </div>
+    <img class="imagen-principal" src="imagenes/fondo home.png" alt="Edificio" />
+  </section>
+
+  <!-- Sección de Login -->
+  <section id="loginSection" style="display: none;">
+    <h3>Iniciar Sesión</h3>
+    <form id="loginForm">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required><br><br>
+
+      <label for="contrasena">Contraseña:</label>
+      <input type="password" id="contrasena" name="contrasena" required><br><br>
+
+      <button type="submit">Iniciar Sesión</button>
+    </form>
+    <p id="mensaje"></p>
+  </section>
+
+  <!-- Noticias -->
+  <section class="noticias">
+    <h3>NOTICIAS</h3>
+    <div class="contenedor-noticias">
+      <div class="noticia">
+        <img src="imagenes/mini01.png" alt="Ubicación" />
+        <p>NUEVA UBICACIÓN</p>
+      </div>
+      <div class="noticia">
+        <img src="imagenes/mini02.png" alt="Barrio" />
+        <p>TU BARRIO</p>
+      </div>
+      <div class="noticia">
+        <img src="imagenes/mini03.png" alt="Operativos" />
+        <p>OPERATIVOS</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="item-footer">
+      <img src="imagenes/icono-telefono.png" alt="Teléfono" />
+      <p>0385 15-450-5700</p>
+    </div>
+    <div class="item-footer">
+      <img src="imagenes/icono-direccion.png" alt="Dirección" />
+      <p>Belgrano (N) 843<br />Complejo Parque Norte<br />Bloque 2</p>
+    </div>
+    <div class="item-footer">
+      <img src="imagenes/icono-email.png" alt="Email" />
+      <p>Calidad.de.vida@gmail.com</p>
+    </div>
+    <div class="item-footer">
+      <img src="imagenes/icono-horario.png" alt="Atención" />
+      <p>Lun. a Vie.<br />7:00 - 13:00</p>
+    </div>
+  </footer>
+
+  <script>
+    // Mostrar el formulario de login cuando el usuario hace clic en "INGRESAR"
+    document.getElementById('ingresar').addEventListener('click', function() {
+      document.getElementById('loginSection').style.display = 'block';
+    });
+
+    // Manejo del login desde el frontend
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const contrasena = document.getElementById('contrasena').value;
+
+      const response = await fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, contrasena })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        document.getElementById('mensaje').innerText = 'Login exitoso';
+        // Aquí puedes almacenar el token JWT en localStorage o sessionStorage si es necesario
+        // localStorage.setItem('token', data.token);
+      } else {
+        document.getElementById('mensaje').innerText = data.error;
+      }
+    });
+  </script>
+
+</body>
+</html>
