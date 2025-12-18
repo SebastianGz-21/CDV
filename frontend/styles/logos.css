@@ -1,0 +1,102 @@
+/* ========================================
+   ESTILOS GLOBALES PARA LOGOS
+   Garantiza consistencia y responsive design
+   ======================================== */
+
+/* Logo Calidad de Vida (sidebar) */
+.logo-calidad {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 80px !important;
+  width: 100% !important;
+  margin-bottom: 0.5rem !important;
+  flex-shrink: 0 !important;
+}
+
+.logo-calidad img {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  transition: filter 0.3s ease, transform 0.3s ease !important;
+}
+
+.logo-calidad:hover img {
+  filter: brightness(85%) !important;
+  transform: scale(1.05) !important;
+}
+
+.logo-calidad:active img {
+  transform: scale(0.98) !important;
+}
+
+/* Logo Capital (Municipalidad) */
+.logo-capital {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 80px !important;
+  width: 100% !important;
+  margin-bottom: 0.5rem !important;
+  flex-shrink: 0 !important;
+}
+
+.logo-capital img {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  transition: filter 0.3s ease, transform 0.3s ease !important;
+}
+
+.logo-capital:hover img {
+  filter: brightness(85%) !important;
+  transform: scale(1.05) !important;
+}
+
+.logo-capital:active img {
+  transform: scale(0.98) !important;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablets (768px y arriba) */
+@media (min-width: 768px) {
+  .logo-calidad,
+  .logo-capital {
+    height: 100px !important;
+    margin-bottom: 1.2rem !important;
+  }
+}
+
+/* Pantallas medianas (992px y arriba) */
+@media (min-width: 992px) {
+  .logo-calidad,
+  .logo-capital {
+    height: 120px !important;
+    margin-bottom: 1.5rem !important;
+  }
+}
+
+/* Pantallas grandes (1200px y arriba) */
+@media (min-width: 1200px) {
+  .logo-calidad,
+  .logo-capital {
+    height: 140px !important;
+    margin-bottom: 1.8rem !important;
+  }
+}
+
+/* Pantallas muy pequeñas (móviles) */
+@media (max-width: 480px) {
+  .logo-calidad,
+  .logo-capital {
+    height: 70px !important;
+    margin-bottom: 0.8rem !important;
+  }
+}

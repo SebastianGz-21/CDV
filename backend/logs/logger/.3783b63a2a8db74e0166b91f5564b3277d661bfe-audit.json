@@ -1,0 +1,25 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "E:\\Users\\Gerez\\Desktop\\ITSE\\CalidadDeVida-master\\backend\\logs\\logger\\.3783b63a2a8db74e0166b91f5564b3277d661bfe-audit.json",
+    "files": [
+        {
+            "date": 1765848876290,
+            "name": "E:\\Users\\Gerez\\Desktop\\ITSE\\CalidadDeVida-master\\backend\\logs\\logger\\auth-2025-12-15.log",
+            "hash": "34f4254cc179af8513b048ebdcbe196cbffa26c2263f4026a61c586238973399"
+        },
+        {
+            "date": 1765854838988,
+            "name": "E:\\Users\\Gerez\\Desktop\\ITSE\\CalidadDeVida-master\\backend\\logs\\logger\\auth-2025-12-16.log",
+            "hash": "66746fa25a309e731810072500426a1d71a9eb9174910b26c0abc6239fd5dd5a"
+        },
+        {
+            "date": 1766060875848,
+            "name": "E:\\Users\\Gerez\\Desktop\\ITSE\\CalidadDeVida-master\\backend\\logs\\logger\\auth-2025-12-18.log",
+            "hash": "e6f1707d97673e191b27028a081d2257eaf56a899347f60c934c24d97d4bf0fc"
+        }
+    ],
+    "hashType": "sha256"
+}

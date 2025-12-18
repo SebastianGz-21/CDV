@@ -1,0 +1,292 @@
+/* Estilos generales */
+body {
+    background-color: transparent;
+    font-family: Arial, sans-serif;
+}
+
+.titulo-area {
+  text-align: center;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.titulo-area h1 {
+  font-size: 2.5rem;
+   font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.titulo-area i {
+  margin-right: 0.5rem;
+  color: #ffffff;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+.card-header { border-radius: 10px 10px 0 0 !important; }
+
+/* Estilos para los campos del formulario */
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* === Botones estilo institucional (replicado de Renovación) === */
+.btn-outline-primary,
+#btnBuscarMapa,
+#btnAddAnexo,
+button[onclick^="removeAnexo"],
+#btnBuscarCuit {
+  background: linear-gradient(to bottom, #ccb3ea, #6b5188) !important;
+  color: #fff !important;
+  border: 1px solid #655577 !important;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.btn-outline-primary:hover,
+#btnBuscarMapa:hover,
+#btnAddAnexo:hover,
+button[onclick^="removeAnexo"]:hover,
+#btnBuscarCuit:hover {
+  background-color: #2e243e !important;
+  border-color: #4e3c66 !important;
+  color: #fff !important;
+  transform: scale(1.03);
+}
+
+.btn-outline-primary i,
+#btnBuscarMapa i,
+#btnAddAnexo i,
+button[onclick^="removeAnexo"] i,
+#btnBuscarCuit i {
+  color: #fff !important;
+}
+
+/* Estilos para la sección de documentos */
+.documento-item {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: white;
+}
+
+.documento-item .form-label {
+    font-weight: 600;
+}
+
+.documento-item .file-info {
+    margin-top: 5px;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.documento-item .file-status {
+    color: #198754;
+    font-weight: bold;
+}
+
+/* Estilos para el mini mapa */
+#miniMapa { border-radius: 5px; border: 1px solid #dee2e6; margin-bottom: 10px; }
+
+#miniMapa iframe {
+    border-radius: 5px;
+}
+
+/* Estilos para la previsualización */
+#previewContent .preview-item {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+#previewContent .preview-label {
+    font-weight: bold;
+    color: #495057;
+}
+
+#previewContent .preview-value {
+    color: #212529;
+}
+
+/* Estilos para los documentos cargados */
+.documento-cargado {
+    color: #198754;
+    font-weight: bold;
+}
+
+/* Estilos para los anexos */
+.anexo-group {
+    margin-bottom: 10px;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .card-body .row > div {
+        margin-bottom: 15px;
+    }
+}
+
+/* Estilos para selects de anexos */
+.anexo-select {
+    background-color: white !important;
+}
+
+.anexo-select:disabled {
+    background-color: #e9ecef;
+    opacity: 1;
+}
+
+.anexo-select option:disabled {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Estilos para el ratio del mapa */
+.ratio-16x9 {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+}
+
+.ratio-16x9 iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+}
+
+/* Estilos para mensajes de alerta */
+.alert-warning {
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+}
+
+/* Estilos para el enlace del mapa */
+.map-link {
+    word-break: break-all;
+    font-size: 0.9rem;
+}
+
+/* Placeholder más claro en inputs */
+.form-control::placeholder {
+  color: #c0b8b8;   /* más tenue que el gris por defecto */
+  opacity: 1;       /* asegura contraste consistente entre navegadores */
+}
+
+/* === Modal de previsualización coherente con el formulario === */
+/* Título del modal idéntico a los títulos del formulario */
+#previewModal .modal-header {
+  background: linear-gradient(to bottom, #c0a6dd, #655577);
+  color: #fff;
+  border-radius: 8px 8px 0 0;   /* igual que .card-header */
+  border-bottom: none;
+  padding: 8px 16px;
+}
+
+#previewModal .modal-title {
+  color: inherit;   /* blanco */
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Cierre (X) visible sobre header oscuro */
+#previewModal .btn-close {
+  filter: invert(1);
+  opacity: 0.9;
+}
+
+
+#previewContent {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  font-family: 'Segoe UI', Roboto, sans-serif; /* misma fuente del formulario */
+}
+
+#previewContent .preview-item {
+  display: grid;
+  grid-template-columns: 40% 60%;
+  margin-bottom: 6px;
+  border: 1px solid #e0d4f5;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+
+#previewContent .preview-label {
+  background: #f3e8ff;     /* violeta muy suave */
+  color: #5a189a;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-right: 1px solid #e0d4f5;
+}
+
+#previewContent .preview-value {
+  padding: 6px 12px;
+  color: #212529;
+  text-align: left;
+}
+
+#previewContent .preview-value:empty::after {
+  content: "—";
+  color: #6c757d;
+}
+
+/* === Alinear el botón Cerrar sesión a la derecha cuando la sidebar pasa arriba (vista móvil) === */
+@media (max-width: 768px) {
+  .sidebar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between; /* logo/nombre a la izquierda, botón a la derecha */
+    gap: 12px;
+    padding: 8px 16px;
+  }
+
+  .sidebar .user-info {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .sidebar .user-data { flex: 1; }     /* ocupa el medio */
+  .sidebar .logout-btn { margin-left: auto; } /* empuja el botón a la derecha */
+}
+
+/* 📌 Ajuste entre 900px y 1245px – Evitar compresión del botón "Eliminar" y N° sucursal */
+@media (min-width: 768px) and (max-width: 1246px) {
+    /* Campo Nº sucursal: darle más espacio */
+    
+    #datosComercio .col-md-7 {
+        flex: 0 0 70%;
+        max-width: 70%;
+    }
+
+    /* Bloque Anexos – ajustar proporciones */
+    #anexosContainer .col-md-10 {
+        flex: 0 0 70%;
+        max-width: 70%;
+    }
+    #anexosContainer .col-md-2 {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+
+    /* Aseguro que el botón mantenga su relación sin romper estructura */
+    #anexosContainer button {
+        white-space: nowrap;
+    }
+}
+
