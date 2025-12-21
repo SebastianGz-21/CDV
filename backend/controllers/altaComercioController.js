@@ -2,6 +2,7 @@ const pool = require('../db');
 const path = require('path');
 const fs = require('fs');
 const QRCode = require('qrcode');
+const { enviarEmailAltaComercio } = require('../utils/emailService');
 
 
 exports.getTitulares = async (req, res) => {
@@ -261,6 +262,71 @@ exports.registrarComercioCompleto = async (req, res) => {
             }
         }
 
+        // 4. Generar QR automáticamente
+        let qrPath = null;
+        try {
+            const baseUrl = process.env.PUBLIC_URL || `${req.protocol}://${req.get('host')}`;
+            const targetUrl = `${baseUrl}/pages/comercio.html?id=${idComercio}`;
+            
+            const qrDir = path.join(process.cwd(), 'uploads', 'qr');
+            if (!fs.existsSync(qrDir)) fs.mkdirSync(qrDir, { recursive: true });
+            
+            const qrFilename = `comercio_${idComercio}.png`;
+            const qrFilePath = path.join(qrDir, qrFilename);
+            await QRCode.toFile(qrFilePath, targetUrl, { width: 600, margin: 1 });
+            
+            qrPath = `/uploads/qr/${qrFilename}`;
+            await pool.query('UPDATE comercio SET ruta_qr = ? WHERE id_comercio = ?', [qrPath, idComercio]);
+            
+            console.log(`📱 QR generado: ${qrFilename}`);
+        } catch (qrError) {
+            console.error('Error al generar QR:', qrError);
+        }
+
+        // 5. Obtener datos completos para el email
+        let razonSocialNombre = null;
+        if (idRazonSocialDB) {
+            const [[titular]] = await pool.query(
+                'SELECT CONCAT(nombre, " ", apellido) as nombre FROM razon_social WHERE id_razon_social = ?',
+                [idRazonSocialDB]
+            );
+            razonSocialNombre = titular?.nombre || 'Titular';
+        } else if (idTitularAmbulanteDB) {
+            const [[titular]] = await pool.query(
+                'SELECT CONCAT(nombre, " ", apellido) as nombre FROM titular_ambulante WHERE id = ?',
+                [idTitularAmbulanteDB]
+            );
+            razonSocialNombre = titular?.nombre || 'Titular';
+        }
+
+        // 6. Enviar email al titular (async - no bloqueante)
+        if (correoElectronico) {
+            const datosEmail = {
+                nombreComercial: nombreFinal,
+                razonSocial: razonSocialNombre,
+                emailTitular: correoElectronico,
+                categoria,
+                rubro,
+                direccion,
+                telefono,
+                idComercio,
+                qrPath
+            };
+
+            // Enviar email de forma asíncrona sin bloquear la respuesta
+            enviarEmailAltaComercio(datosEmail)
+                .then(result => {
+                    if (result.success) {
+                        console.log(`📧 Email enviado exitosamente a ${correoElectronico}`);
+                    } else {
+                        console.error(`❌ Error al enviar email: ${result.error}`);
+                    }
+                })
+                .catch(err => {
+                    console.error('❌ Error al enviar email:', err);
+                });
+        }
+
         res.status(201).json({
             success: true,
             idComercio,
@@ -328,9 +394,10 @@ exports.generarQR = async (req, res) => {
             return res.status(404).json({ ok: false, error: 'Comercio no encontrado' });
         }
 
-        // 2) URL que codificará el QR (ajustala cuando tengas tu endpoint público)
-        const baseUrl = `${req.protocol}://${req.get('host')}`;
-        const targetUrl = `${baseUrl}/api/alta-comercio/estado/${id}`;
+        // 2) URL que codificará el QR - redirige a la página del comercio
+        // Usar variable de entorno para dev tunnels o producción
+        const baseUrl = process.env.PUBLIC_URL || `${req.protocol}://${req.get('host')}`;
+        const targetUrl = `${baseUrl}/pages/comercio.html?id=${id}`;
 
         // 3) Carpeta física para PNG (usa la raíz del proyecto)
         const qrDir = path.join(process.cwd(), 'uploads', 'qr');

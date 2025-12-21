@@ -211,6 +211,15 @@ body.dashboard-body {
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 }
 
+/* Botón específico para escanear QR */
+#btnEscanearQR {
+  background: linear-gradient(to bottom, #4a90e2, #2e5a8f);
+}
+
+#btnEscanearQR:hover {
+  background: linear-gradient(to bottom, #357abd, #1e4570);
+}
+
 /* Buttons Grid Styles */
 .buttons-grid {
   display: grid;

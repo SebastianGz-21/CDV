@@ -224,7 +224,15 @@ document.addEventListener('DOMContentLoaded', function() {
       if (data.token) {
         // ✅ Usar sessionStorage en lugar de sessionStorage
         sessionStorage.setItem("token", data.token);
-        window.location.href = "/pages/panel-principal.html";
+        
+        // Verificar si hay una URL guardada para redirigir
+        const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+        if (redirectUrl) {
+          sessionStorage.removeItem('redirectAfterLogin');
+          window.location.href = redirectUrl;
+        } else {
+          window.location.href = "/pages/panel-principal.html";
+        }
       }
     })
     .catch(error => {

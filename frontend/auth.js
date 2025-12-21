@@ -32,6 +32,11 @@ export function parseaToken(token) {
 export function checkAuth() {
   const token = getToken();
   if (!token) {
+    // Guardar URL actual antes de redirigir al login
+    const currentUrl = window.location.href;
+    if (!currentUrl.includes('login.html')) {
+      sessionStorage.setItem('redirectAfterLogin', currentUrl);
+    }
     logout();
     return null;
   }
