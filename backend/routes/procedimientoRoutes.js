@@ -149,7 +149,7 @@ const uploadProcedimientos = require('../middlewares/multerProcedimientos');
 // GET /api/procedimientos - Listar con filtros
 router.get('/', verificarToken, async (req, res) => {
   try {
-    const { comercio } = req.query;
+    const { comercio, transporte } = req.query;
     
     let query = `
       SELECT p.*, CONCAT(e.nombre, ' ', e.apellido) AS inspector_nombre
@@ -163,6 +163,11 @@ router.get('/', verificarToken, async (req, res) => {
     if (comercio) {
       query += ' AND p.id_comercio = ?';
       params.push(comercio);
+    }
+    
+    if (transporte) {
+      query += ' AND p.id_transporte = ?';
+      params.push(transporte);
     }
     
     query += ' ORDER BY p.fecha_procedimiento DESC';
@@ -239,7 +244,15 @@ router.post('/',
 
       await connection.beginTransaction();
 
-      const { tipo_procedimiento, fecha_procedimiento, resultado, observacion, documentacion, id_comercio, id_inspector } = req.body;
+      const { tipo_procedimiento, fecha_procedimiento, resultado, observacion, documentacion, id_comercio, id_transporte, id_inspector } = req.body;
+      
+      // Validar que al menos uno de los IDs esté presente
+      if (!id_comercio && !id_transporte) {
+        await connection.rollback();
+        return res.status(400).json({ error: 'Debe especificar un comercio o un transporte' });
+      }
+      
+      const esTransporte = !!id_transporte;
       
       // Manejar fotos con validación extendida
       let fotos = null;
@@ -259,16 +272,16 @@ router.post('/',
       console.log('🗃️ Insertando en base de datos...');
       const [result] = await connection.query(
         `INSERT INTO procedimiento 
-        (tipo_procedimiento, fecha_procedimiento, resultado, observacion, documentacion, fotos, id_comercio, id_inspector)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [tipo_procedimiento, fecha_procedimiento, resultado, observacion, documentacion, fotos, id_comercio, id_inspector]
+        (tipo_procedimiento, fecha_procedimiento, resultado, observacion, documentacion, fotos, id_comercio, id_transporte, id_inspector)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [tipo_procedimiento, fecha_procedimiento, resultado, observacion, documentacion, fotos, id_comercio || null, id_transporte || null, id_inspector]
       );
 
       console.log('✅ Procedimiento guardado en BD con ID:', result.insertId);
       console.log('📸 Fotos guardadas en BD:', fotos);
 
-      // 2. Lógica para inspección ocular
-      if (tipo_procedimiento === 'inspeccion-ocular' && resultado === 'Aprobado') {
+      // 2. Lógica para inspección ocular (solo comercios)
+      if (!esTransporte && tipo_procedimiento === 'inspeccion-ocular' && resultado === 'Aprobado') {
         console.log(`🔄 Actualizando estado del comercio ${id_comercio} después de inspección ocular aprobada`);
         
         const fechaHabilitacion = new Date().toISOString().split('T')[0];
@@ -287,7 +300,7 @@ router.post('/',
         );
         
         console.log(`✅ Comercio ${id_comercio} actualizado: inspección aprobada, fechas actualizadas`);
-      } else if (tipo_procedimiento === 'inspeccion-ocular' && resultado !== 'Aprobado') {
+      } else if (!esTransporte && tipo_procedimiento === 'inspeccion-ocular' && resultado !== 'Aprobado') {
         // Si la inspección no fue aprobada, mantenemos pendiente_inspeccion en 1
         console.log(`⚠️ Inspección ocular no aprobada para comercio ${id_comercio}`);
       }
@@ -298,11 +311,12 @@ router.post('/',
       
       res.json({ 
         mensaje: 'Procedimiento registrado correctamente' + 
-                (tipo_procedimiento === 'inspeccion-ocular' ? ' y comercio activado' : ''),
+                (tipo_procedimiento === 'inspeccion-ocular' && !esTransporte ? ' y comercio activado' : ''),
         id_procedimiento: result.insertId,
         fotos_guardadas: fotos,
         total_archivos: req.files ? req.files.length : 0,
-        ubicacion_archivos: '/uploads/procedimientos/'
+        ubicacion_archivos: '/uploads/procedimientos/',
+        tipo_entidad: esTransporte ? 'transporte' : 'comercio'
       });
       
     } catch (err) {

@@ -126,7 +126,13 @@ Documentación: ${procedimiento.documentacion || 'Ninguna'}`);
       formData.append('resultado', document.getElementById('resultado').value);
       formData.append('observacion', document.getElementById('observacion').value);
       formData.append('documentacion', document.getElementById('documentacion').value);
-      formData.append('id_comercio', idComercio);
+      
+      if (esTransporte) {
+        formData.append('id_transporte', idEntidad);
+      } else {
+        formData.append('id_comercio', idEntidad);
+      }
+      
       formData.append('id_inspector', userData.id_empleado);
 
       // Agregar fotos si hay
@@ -201,12 +207,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.location.href = 'login.html';
     });
 
-    // 3. Obtener ID del comercio de la URL
+    // 3. Obtener ID del comercio o transporte de la URL
     const urlParams = new URLSearchParams(window.location.search);
     const idComercio = urlParams.get('id_comercio');
-    if (!idComercio) {
-      throw new Error('No se especificó un comercio');
+    const idTransporte = urlParams.get('id_transporte');
+    
+    if (!idComercio && !idTransporte) {
+      throw new Error('No se especificó un comercio o transporte');
     }
+    
+    const esTransporte = !!idTransporte;
+    const idEntidad = idComercio || idTransporte;
+    
     const tipoProcedimiento = urlParams.get('tipo');
     if (tipoProcedimiento) {
   const selectTipo = document.getElementById('tipo-procedimiento');
@@ -225,30 +237,49 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    // 4. Cargar información del comercio
-    let comercio = null;
+    // 4. Cargar información del comercio o transporte
+    let entidad = null;
     try {
-      const response = await fetch(`/api/comercios/${idComercio}`, {
+      const endpoint = esTransporte ? `/api/transportes/${idEntidad}` : `/api/comercios/${idEntidad}`;
+      const response = await fetch(endpoint, {
         headers: {
           'Authorization': `Bearer ${sessionStorage.getItem('token')}`
         }
       });
-      comercio = await response.json();
-      document.getElementById('info-comercio').textContent = 
-        `Procedimientos para: ${comercio.nombre_comercial} - ${comercio.direccion}`;
+      entidad = await response.json();
+      
+      const infoElement = document.getElementById('info-comercio');
+      if (esTransporte) {
+        infoElement.textContent = 
+          `Procedimientos para: Transporte ${entidad.patente} - ${entidad.titular_nombre}`;
+      } else {
+        infoElement.textContent = 
+          `Procedimientos para: ${entidad.nombre_comercial} - ${entidad.direccion}`;
+      }
+      // Aplicar estilo directamente
+      infoElement.style.color = '#ffffff';
+      infoElement.style.fontWeight = '500';
     } catch (error) {
-      console.error('Error al cargar comercio:', error);
+      console.error('Error al cargar datos:', error);
     }
 
-    // 5. Configurar botón volver
-    document.getElementById('btn-volver').addEventListener('click', () => {
-      window.location.href = `comercio.html?id=${idComercio}`;
-    });
+    // 5. Configurar botón volver (solo header)
+    const btnVolverHeader = document.getElementById('btn-volver-header');
+    if (btnVolverHeader) {
+        btnVolverHeader.addEventListener('click', () => {
+            if (esTransporte) {
+                window.location.href = `transporte.html?id=${idEntidad}`;
+            } else {
+                window.location.href = `comercio.html?id=${idEntidad}`;
+            }
+        });
+    }
 
     // 6. Cargar historial de procedimientos
     async function cargarHistorial() {
       try {
-        const response = await fetch(`/api/procedimientos?comercio=${idComercio}`, {
+        const param = esTransporte ? `transporte=${idEntidad}` : `comercio=${idEntidad}`;
+        const response = await fetch(`/api/procedimientos?${param}`, {
           headers: {
             'Authorization': `Bearer ${sessionStorage.getItem('token')}`
           }
@@ -557,7 +588,13 @@ async function mostrarDetalleProcedimiento(id) {
       formData.append('resultado', document.getElementById('resultado').value);
       formData.append('observacion', document.getElementById('observacion').value);
       formData.append('documentacion', document.getElementById('documentacion').value);
-      formData.append('id_comercio', idComercio);
+      
+      if (esTransporte) {
+        formData.append('id_transporte', idEntidad);
+      } else {
+        formData.append('id_comercio', idEntidad);
+      }
+      
       formData.append('id_inspector', userData.id_empleado);
 
       // Agregar fotos si hay

@@ -34,9 +34,9 @@
 
       <!-- Título -->
       <div class="titulo-contenedor">
-        <a href="../pages/panel-principal.html" class="boton-volver" aria-label="Volver">
-          <i class="fas fa-arrow-left"></i> Volver al panel
-        </a>
+        <button id="btn-volver-header" class="boton-volver" aria-label="Volver">
+          <i class="fas fa-arrow-left"></i> <span id="texto-volver">Volver</span>
+        </button>
         <div class="titulo-area">
           <h1><i class="fas fa-clipboard-check"></i> Procedimiento</h1>
           <div id="info-comercio"></div>
@@ -90,9 +90,6 @@
             <div class="footer-acciones">
               <button type="submit" class="boton-primario">
                 <i class="fas fa-save"></i> Guardar Procedimiento
-              </button>
-              <button type="button" id="btn-volver" class="boton-secundario">
-                <i class="fas fa-arrow-left"></i> Volver al Comercio
               </button>
             </div>
           </form>

@@ -16,6 +16,9 @@ dotenv.config();
 
 const app = express();
 
+// Configurar trust proxy para rate limiting
+app.set('trust proxy', 1);
+
 // ✅ Helmet para headers HTTP seguros
 app.use(helmet({
   contentSecurityPolicy: {

@@ -246,6 +246,107 @@ document.addEventListener('DOMContentLoaded', async () => {
         idTransporte = urlParams.get('id');
         if (!idTransporte) throw new Error('ID de transporte no especificado');
 
+        // Funciones para el historial de procedimientos
+        async function cargarHistorial() {
+            try {
+                console.log('Cargando historial para transporte:', idTransporte);
+                
+                const response = await fetch(`/api/procedimientos?transporte=${idTransporte}`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${await response.text()}`);
+                }
+                
+                const procedimientos = await response.json();
+                console.log('Procedimientos recibidos:', procedimientos);
+                
+                renderizarHistorial(procedimientos);
+            } catch (error) {
+                console.error('Error al cargar historial:', error);
+                const tbody = document.getElementById('historial-procedimientos');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #666; padding: 20px;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Error al cargar el historial: ${error.message}
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+        }
+
+        function renderizarHistorial(procedimientos) {
+            const tbody = document.getElementById('historial-procedimientos');
+            if (!tbody) {
+                console.error('No se encontró el elemento historial-procedimientos');
+                return;
+            }
+            
+            tbody.innerHTML = '';
+
+            if (procedimientos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #666; padding: 20px;">
+                            <i class="fas fa-info-circle"></i>
+                            No hay procedimientos registrados
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            procedimientos.forEach(proc => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${proc.tipo_procedimiento || 'N/A'}</td>
+                    <td>${proc.fecha_procedimiento ? new Date(proc.fecha_procedimiento).toLocaleDateString('es-AR') : 'N/A'}</td>
+                    <td><span class="estado-${proc.resultado ? proc.resultado.toLowerCase() : 'desconocido'}">${proc.resultado || 'N/A'}</span></td>
+                    <td>${proc.inspector_nombre || 'N/A'}</td>
+                    <td>
+                        <button class="btn-accion btn-ver" data-id="${proc.id_procedimiento}">
+                            <i class="fas fa-eye"></i> Ver detalles
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.querySelectorAll('.btn-ver').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    mostrarDetalleProcedimiento(id);
+                });
+            });
+        }
+
+        async function mostrarDetalleProcedimiento(id) {
+            try {
+                const response = await fetch(`/api/procedimientos/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+                    }
+                });
+                const procedimiento = await response.json();
+
+                alert(`Detalles del procedimiento:\n
+Tipo: ${procedimiento.tipo_procedimiento}\n
+Fecha: ${new Date(procedimiento.fecha_procedimiento).toLocaleDateString('es-AR')}\n
+Resultado: ${procedimiento.resultado}\n
+Observaciones: ${procedimiento.observacion || 'Ninguna'}\n
+Documentación: ${procedimiento.documentacion || 'Ninguna'}`);
+            } catch (error) {
+                console.error('Error al cargar detalle:', error);
+                alert(`Error al cargar los detalles: ${error.message}`);
+            }
+        }
+
         // 4. Cargar datos del transporte
         const response = await fetch(`/api/transportes/${idTransporte}`, {
             headers: {
@@ -382,6 +483,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
+        // Cargar historial de procedimientos (para todos los roles)
+        cargarHistorial();
+
+        // Configurar toggle del historial (para todos los roles)
+        const headerInspecciones = document.getElementById('header-inspecciones');
+        const contenidoInspecciones = document.getElementById('contenido-inspecciones');
+        const toggleIcon = document.getElementById('toggle-inspecciones');
+        
+        if (headerInspecciones && contenidoInspecciones && toggleIcon) {
+            headerInspecciones.addEventListener('click', function() {
+                const estaExpandido = contenidoInspecciones.classList.contains('expandido');
+                
+                if (estaExpandido) {
+                    contenidoInspecciones.classList.remove('expandido');
+                    toggleIcon.classList.remove('girado');
+                } else {
+                    contenidoInspecciones.classList.add('expandido');
+                    toggleIcon.classList.add('girado');
+                }
+            });
+        }
+
     } catch (error) {
         console.error('Error general:', error);
 
@@ -401,3 +524,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 });
+
