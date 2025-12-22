@@ -2,6 +2,7 @@ const pool = require('../db');
 const path = require('path');
 const fs = require('fs');
 const QRCode = require('qrcode');
+const { enviarEmailAltaTransporte } = require('../utils/emailService');
 
 // ==============================
 // ✅ Registrar Transporte Completo (idéntico a comercio, adaptado)
@@ -134,8 +135,8 @@ console.log('Empleado que registra el transporte:', req.usuario.id_empleado);
         }
 
         // 3) Generar QR (prefijo transporte_) — igual que comercio pero con tabla/campos de transporte
-        const baseUrl = `${req.protocol}://${req.get('host')}`;
-        const targetUrl = `${baseUrl}/api/alta-transporte/estado/${idTransporte}`;
+        const baseUrl = process.env.PUBLIC_URL || `${req.protocol}://${req.get('host')}`;
+        const targetUrl = `${baseUrl}/pages/transporte.html?id=${idTransporte}`;
         const qrDir = path.join(process.cwd(), 'uploads', 'qr');
         if (!fs.existsSync(qrDir)) fs.mkdirSync(qrDir, { recursive: true });
 
@@ -149,7 +150,46 @@ console.log('Empleado que registra el transporte:', req.usuario.id_empleado);
             idTransporte
         ]);
 
-        // 4) Respuesta idéntica (comercio devuelve success + id)
+        // 4) Obtener datos del titular para el email
+        const [[titular]] = await pool.query(
+            'SELECT CONCAT(nombre, " ", apellido) as nombre, correo_electronico FROM titular_ambulante WHERE id = ?',
+            [id_titular_ambulante]
+        );
+        const nombreTitular = titular?.nombre || 'Titular';
+        const emailTitular = titular?.correo_electronico;
+
+        // 5) Enviar email al titular (async - no bloqueante)
+        if (emailTitular) {
+            const datosEmail = {
+                nombreTitular,
+                emailTitular,
+                tipoVehiculo: tipo_vehiculo,
+                patente: String(
+                    typeof patente === 'object'
+                        ? patente?.patente ?? ''
+                        : patente ?? ''
+                ).trim().toUpperCase(),
+                tipoAlimento: tipo_alimento,
+                numeroVehiculo: numeroVehiculoDB,
+                idTransporte,
+                qrPath: qrPublicPath
+            };
+
+            // Enviar email de forma asíncrona sin bloquear la respuesta
+            enviarEmailAltaTransporte(datosEmail)
+                .then(result => {
+                    if (result.success) {
+                        console.log(`📧 Email de transporte enviado exitosamente a ${emailTitular}`);
+                    } else {
+                        console.error(`❌ Error al enviar email de transporte: ${result.error}`);
+                    }
+                })
+                .catch(err => {
+                    console.error('❌ Error al enviar email de transporte:', err);
+                });
+        }
+
+        // 6) Respuesta idéntica (comercio devuelve success + id)
         return res.status(201).json({
             success: true,
             idTransporte,
@@ -183,8 +223,8 @@ exports.generarQR = async (req, res) => {
             return res.status(404).json({ ok: false, error: 'Transporte no encontrado' });
         }
 
-        const baseUrl = `${req.protocol}://${req.get('host')}`;
-        const targetUrl = `${baseUrl}/api/alta-transporte/estado/${id}`;
+        const baseUrl = process.env.PUBLIC_URL || `${req.protocol}://${req.get('host')}`;
+        const targetUrl = `${baseUrl}/pages/transporte.html?id=${id}`;
         const qrDir = path.join(process.cwd(), 'uploads', 'qr');
         if (!fs.existsSync(qrDir)) fs.mkdirSync(qrDir, { recursive: true });
 

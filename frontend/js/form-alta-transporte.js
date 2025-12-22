@@ -415,7 +415,7 @@ let titularesTransporte = [];
 // Cargar titulares transporte al abrir la página
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const res = await fetch('/api/alta-comercio/titulares-ambulantes', {
+    const res = await fetch('/api/alta-comercio/titulares-ambulantes?tipo=transporte', {
       headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
     });
     if (!res.ok) throw new Error('Error al cargar titulares de transporte');
@@ -425,19 +425,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     titularesTransporte = [];
   }
 });
-
-// document.addEventListener('DOMContentLoaded', async () => {
-//   try {
-//     const res = await fetch('/api/alta-comercio/titulares-ambulantes?tipo=transporte', {
-//       headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
-//     });
-//     if (!res.ok) throw new Error('Error al cargar titulares de transporte');
-//     titularesTransporte = await res.json();
-//   } catch (e) {
-//     console.error('No se pudieron cargar titulares transporte:', e);
-//     titularesTransporte = [];
-//   }
-// });
 
 
 
@@ -614,8 +601,8 @@ async function cargarDocumentacionTitularTransporte(idTitular) {
   contDocs.innerHTML = '<p class="text-muted">Cargando documentación...</p>';
 
   try {
-    // Misma ruta/convención que comercio ambulante
-    const res = await fetch(`/api/titular/documentos/${idTitular}?tipo=${encodeURIComponent('vendedor ambulante')}`, {
+    // Usar tipo='transporte' para cargar los documentos del titular de transporte
+    const res = await fetch(`/api/titular/documentos/${idTitular}?tipo=${encodeURIComponent('transporte')}`, {
       headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
     });
     if (!res.ok) throw new Error('Error al obtener documentación');

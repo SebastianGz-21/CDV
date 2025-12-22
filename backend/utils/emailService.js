@@ -420,6 +420,400 @@ Fecha de emisión: ${new Date().toLocaleDateString('es-AR', { day: '2-digit', mo
     }
 }
 
+/**
+ * Generar PDF de constancia de alta de transporte
+ */
+async function generarPDFConstanciaTransporte(datosTransporte) {
+    return new Promise((resolve, reject) => {
+        try {
+            const {
+                nombreTitular,
+                emailTitular,
+                tipoVehiculo,
+                patente,
+                tipoAlimento,
+                numeroVehiculo,
+                idTransporte,
+                qrPath
+            } = datosTransporte;
+
+            // Crear directorio para PDFs si no existe
+            const pdfDir = path.join(process.cwd(), 'uploads', 'constancias');
+            if (!fs.existsSync(pdfDir)) {
+                fs.mkdirSync(pdfDir, { recursive: true });
+            }
+
+            const pdfPath = path.join(pdfDir, `Constancia_Transporte_${idTransporte}.pdf`);
+            const doc = new PDFDocument({ margin: 50, size: 'A4' });
+            const stream = fs.createWriteStream(pdfPath);
+
+            doc.pipe(stream);
+
+            // Header compacto
+            doc.rect(0, 0, doc.page.width, 75).fill('#655577');
+            
+            doc.fontSize(18).fillColor('#ffffff')
+               .text('Constancia de Alta de Transporte', 50, 20, { align: 'center' });
+            
+            doc.fontSize(9).fillColor('#ffffff')
+               .text('Dirección de Calidad de Vida - Municipalidad de Santiago del Estero', 50, 50, { align: 'center' });
+
+            // Número de habilitación destacado
+            doc.fontSize(10).fillColor('#333333').font('Helvetica')
+               .text('Número de Habilitación', 50, 95);
+            
+            doc.fontSize(22).fillColor('#655577').font('Helvetica-Bold')
+               .text(`#${idTransporte}`, 50, 108);
+
+            // Línea separadora
+            doc.moveTo(50, 140).lineTo(doc.page.width - 50, 140).stroke('#cccccc');
+
+            // Datos del transporte
+            doc.fontSize(13).fillColor('#655577').font('Helvetica-Bold')
+               .text('Datos del Transporte de Alimentos', 50, 150);
+
+            let y = 172;
+            const lineHeight = 18;
+            const colWidth = (doc.page.width - 150) / 2;
+            const col1X = 50;
+            const col2X = 50 + colWidth + 50;
+
+            // Columna 1 - Titular
+            doc.fontSize(10).fillColor('#655577').font('Helvetica-Bold');
+            doc.text('Titular:', col1X, y);
+            doc.fontSize(10).fillColor('#333333').font('Helvetica');
+            doc.text(nombreTitular || 'No especificado', col1X, y + 10, { width: colWidth });
+            
+            // Columna 2 - Número de Vehículo
+            doc.fontSize(10).fillColor('#655577').font('Helvetica-Bold');
+            doc.text('Vehículo N°:', col2X, y);
+            doc.fontSize(10).fillColor('#333333').font('Helvetica');
+            doc.text(numeroVehiculo ? `#${numeroVehiculo}` : 'No especificado', col2X, y + 10, { width: colWidth });
+            y += lineHeight * 1.6;
+
+            // Columna 1 - Tipo de Vehículo
+            doc.fontSize(10).fillColor('#655577').font('Helvetica-Bold');
+            doc.text('Tipo de Vehículo:', col1X, y);
+            doc.fontSize(10).fillColor('#333333').font('Helvetica');
+            doc.text(tipoVehiculo || 'No especificado', col1X, y + 10, { width: colWidth });
+            
+            // Columna 2 - Patente
+            doc.fontSize(10).fillColor('#655577').font('Helvetica-Bold');
+            doc.text('Patente:', col2X, y);
+            doc.fontSize(10).fillColor('#333333').font('Helvetica');
+            doc.text(patente || 'No especificado', col2X, y + 10, { width: colWidth });
+            y += lineHeight * 1.6;
+
+            // Tipo de alimento (ocupa toda la línea)
+            doc.fontSize(10).fillColor('#655577').font('Helvetica-Bold');
+            doc.text('Habilitado para transporte de:', col1X, y);
+            doc.fontSize(10).fillColor('#333333').font('Helvetica');
+            doc.text(tipoAlimento || 'No especificado', col1X, y + 10, { width: doc.page.width - 100 });
+            y += lineHeight * 1.6 + 5;
+
+            // Línea separadora
+            doc.moveTo(50, y).lineTo(doc.page.width - 50, y).stroke('#cccccc');
+            y += 10;
+
+            // QR Code
+            if (qrPath && fs.existsSync(path.join(process.cwd(), qrPath.replace(/^\//, '')))) {
+                const qrFilePath = path.join(process.cwd(), qrPath.replace(/^\//, ''));
+                
+                doc.fontSize(11).fillColor('#655577').font('Helvetica-Bold')
+                   .text('Código QR del Transporte', 50, y);
+                y += 15;
+
+                // Centrar QR
+                const qrSize = 200;
+                const qrX = (doc.page.width - qrSize) / 2;
+                
+                doc.image(qrFilePath, qrX, y, { width: qrSize, height: qrSize });
+                y += qrSize + 8;
+
+                doc.fontSize(10).fillColor('#666666').font('Helvetica')
+                   .text('Los inspectores pueden escanear este código QR para verificar la habilitación', 50, y, { 
+                       align: 'center',
+                       width: doc.page.width - 100
+                   });
+                y += 12;
+            }
+
+            // Recuadro de importante compacto
+            doc.rect(50, y, doc.page.width - 100, 40)
+               .lineWidth(2)
+               .strokeColor('#ffc107')
+               .stroke();
+            
+            doc.fontSize(10).fillColor('#333333').font('Helvetica-Bold')
+               .text('Importante:', 58, y + 7);
+            
+            doc.fontSize(10).fillColor('#333333').font('Helvetica')
+               .text(`Conserve esta constancia como comprobante de registro. El número de habilitación #${idTransporte} es su identificación única en el sistema.`, 
+                     58, y + 18, { width: doc.page.width - 116 });
+            
+            y += 45;
+
+            // Footer compacto
+            doc.fontSize(9).fillColor('#666666').font('Helvetica')
+               .text('Para consultas comuníquese con la Dirección de Calidad de Vida', 50, y, { align: 'center' });
+            
+            doc.fontSize(9).fillColor('#999999')
+               .text(`Fecha de emisión: ${new Date().toLocaleDateString('es-AR', { 
+                   day: '2-digit', 
+                   month: '2-digit', 
+                   year: 'numeric', 
+                   hour: '2-digit', 
+                   minute: '2-digit' 
+               })}`, 50, y + 12, { align: 'center' });
+
+            doc.end();
+
+            stream.on('finish', () => {
+                resolve(pdfPath);
+            });
+
+            stream.on('error', reject);
+
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+/**
+ * Enviar email de alta de transporte al titular
+ */
+async function enviarEmailAltaTransporte(datosTransporte) {
+    try {
+        const {
+            nombreTitular,
+            emailTitular,
+            tipoVehiculo,
+            patente,
+            tipoAlimento,
+            numeroVehiculo,
+            idTransporte,
+            qrPath
+        } = datosTransporte;
+
+        // Generar PDF de constancia
+        const pdfPath = await generarPDFConstanciaTransporte(datosTransporte);
+        
+        // Construir ruta física del QR para mostrar en el email
+        const qrFilePath = qrPath ? path.join(process.cwd(), qrPath.replace(/^\//, '')) : null;
+
+        // Plantilla HTML del correo
+        const htmlContent = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(to bottom, #c0a6dd, #655577); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+        .info-box { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .label { font-weight: bold; color: #655577; }
+        .value { margin-bottom: 15px; }
+        .qr-section { text-align: center; margin: 30px 0; padding: 20px; background: white; border-radius: 8px; }
+        .qr-section img { max-width: 300px; border: 2px solid #c0a6dd; border-radius: 8px; }
+        .footer { text-align: center; margin-top: 30px; padding: 20px; color: #666; font-size: 12px; }
+        .important { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }
+        .print-info { background: #e8f4f8; border: 2px solid #0066cc; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; }
+        
+        @media print {
+            body { background: white; }
+            .container { max-width: 100%; margin: 0; padding: 10mm; }
+            .header { background: #655577 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .content { background: white; padding: 0; }
+            .info-box { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+            .qr-section { page-break-inside: avoid; border: 1px solid #ddd; }
+            .qr-section img { max-width: 250px; }
+            .footer { page-break-before: avoid; border-top: 1px solid #ddd; font-size: 10px; }
+            .important { background: white !important; border: 2px solid #ffc107; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .print-info { display: none; }
+            .no-print { display: none; }
+            a { color: #000; text-decoration: none; }
+        }
+        
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚚 Alta de Transporte de Alimentos Registrada</h1>
+            <p>Dirección de Calidad de Vida</p>
+        </div>
+        
+        <div class="content">
+            <h2>Estimado/a ${nombreTitular || 'Titular'},</h2>
+            
+            <p>Le informamos que su transporte de alimentos ha sido registrado exitosamente en nuestro sistema.</p>
+            
+            <div class="info-box">
+                <h3 style="color: #655577; margin-top: 0;">📋 Datos del Transporte</h3>
+                
+                <div class="value">
+                    <span class="label">Número de Habilitación:</span><br>
+                    <strong style="font-size: 20px; color: #655577;">#${idTransporte}</strong>
+                </div>
+                
+                <div class="value">
+                    <span class="label">Titular:</span><br>
+                    ${nombreTitular || 'No especificado'}
+                </div>
+                
+                ${numeroVehiculo ? `
+                <div class="value">
+                    <span class="label">Vehículo N°:</span><br>
+                    #${numeroVehiculo}
+                </div>
+                ` : ''}
+                
+                <div class="value">
+                    <span class="label">Tipo de Vehículo:</span><br>
+                    ${tipoVehiculo || 'No especificado'}
+                </div>
+                
+                <div class="value">
+                    <span class="label">Patente:</span><br>
+                    ${patente || 'No especificado'}
+                </div>
+                
+                <div class="value">
+                    <span class="label">Habilitado para transporte de:</span><br>
+                    ${tipoAlimento || 'No especificado'}
+                </div>
+            </div>
+
+            ${qrFilePath ? `
+            <div class="qr-section">
+                <h3 style="color: #655577;">📱 Código QR de su Transporte</h3>
+                <p>Este código QR permite acceder rápidamente a la información de su transporte:</p>
+                <img src="cid:qrcode" alt="Código QR del transporte">
+                <p style="font-size: 12px; color: #666; margin-top: 15px;">
+                    Guarde este código QR. Los inspectores podrán escanearlo para verificar su habilitación.
+                </p>
+            </div>
+            ` : ''}
+            
+            <div class="important">
+                <strong>⚠️ Importante:</strong><br>
+                Conserve este correo como comprobante de registro. 
+                El número de habilitación <strong>#${idTransporte}</strong> es su identificación única en el sistema.
+            </div>
+            
+            <div class="print-info">
+                <h3 style="color: #0066cc; margin-top: 0;">📄 Constancia Oficial</h3>
+                <p style="margin: 10px 0; font-size: 14px;">
+                    Este correo incluye un archivo PDF adjunto con la <strong>Constancia de Alta de Transporte</strong>
+                </p>
+                <p style="margin: 10px 0; font-size: 14px;">
+                    📎 <strong>Archivo adjunto:</strong> Constancia_Transporte_#${idTransporte}.pdf
+                </p>
+                <p style="margin: 10px 0; font-size: 12px; color: #666;">
+                    Descargue el PDF para imprimirlo o guardarlo como comprobante oficial
+                </p>
+            </div>
+            
+            <p style="margin-top: 30px;">
+                Para cualquier consulta o trámite relacionado con su transporte de alimentos, 
+                por favor comuníquese con la Dirección de Calidad de Vida.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p class="no-print">Este es un correo automático, por favor no responda a este mensaje.</p>
+            <p><strong>Dirección de Calidad de Vida</strong></p>
+            <p>Municipalidad - Sistema de Gestión de Transportes</p>
+            <p style="margin-top: 10px; font-size: 10px;">Fecha de emisión: ${new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+        </div>
+    </div>
+</body>
+</html>
+        `;
+
+        // Texto plano alternativo
+        const textContent = `
+ALTA DE TRANSPORTE DE ALIMENTOS REGISTRADA
+Dirección de Calidad de Vida
+
+Estimado/a ${nombreTitular || 'Titular'},
+
+Le informamos que su transporte de alimentos ha sido registrado exitosamente en nuestro sistema.
+
+DATOS DEL TRANSPORTE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Número de Habilitación: #${idTransporte}
+Titular: ${nombreTitular || 'No especificado'}
+${numeroVehiculo ? `Vehículo N°: #${numeroVehiculo}\n` : ''}Tipo de Vehículo: ${tipoVehiculo || 'No especificado'}
+Patente: ${patente || 'No especificado'}
+Habilitado para transporte de: ${tipoAlimento || 'No especificado'}
+
+IMPORTANTE:
+Conserve este correo como comprobante de registro.
+El número de habilitación #${idTransporte} es su identificación única en el sistema.
+
+CONSTANCIA OFICIAL:
+Este correo incluye un archivo PDF adjunto con la Constancia de Alta de Transporte.
+Archivo adjunto: Constancia_Transporte_#${idTransporte}.pdf
+Descargue el PDF para imprimirlo o guardarlo como comprobante oficial.
+
+Para cualquier consulta o trámite relacionado con su transporte de alimentos,
+por favor comuníquese con la Dirección de Calidad de Vida.
+
+---
+Este es un correo automático, por favor no responda a este mensaje.
+Dirección de Calidad de Vida
+Municipalidad - Sistema de Gestión de Transportes
+Fecha de emisión: ${new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+        `;
+
+        const mailOptions = {
+            from: process.env.EMAIL_FROM || '"Calidad de Vida" <noreply@calidaddevida.gob.ar>',
+            to: emailTitular,
+            subject: `✅ Alta de Transporte - Habilitación #${idTransporte} - Patente ${patente || 'N/A'}`,
+            text: textContent,
+            html: htmlContent
+        };
+
+        // Adjuntos
+        mailOptions.attachments = [];
+        
+        // Adjuntar PDF de constancia
+        if (fs.existsSync(pdfPath)) {
+            mailOptions.attachments.push({
+                filename: `Constancia_Transporte_${idTransporte}.pdf`,
+                path: pdfPath
+            });
+        }
+        
+        // Adjuntar QR como imagen embebida en el email
+        if (qrFilePath && fs.existsSync(qrFilePath)) {
+            mailOptions.attachments.push({
+                filename: `QR_Transporte_${idTransporte}.png`,
+                path: qrFilePath,
+                cid: 'qrcode'
+            });
+        }
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ Email de transporte enviado:', info.messageId);
+        return { success: true, messageId: info.messageId };
+
+    } catch (error) {
+        console.error('❌ Error al enviar email de transporte:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 module.exports = {
-    enviarEmailAltaComercio
+    enviarEmailAltaComercio,
+    enviarEmailAltaTransporte
 };
