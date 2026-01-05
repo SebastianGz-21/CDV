@@ -65,7 +65,10 @@ export function infoUsuario(userData) {
   const rol = userData.rol || userData.role || '';
   if (rol) userInfoElements.role.textContent = rol;
   
-  // if (userData.imagen) userInfoElements.img.src = userData.imagen; 
+  // Mostrar foto de perfil si existe
+  if (userData.foto_perfil && userInfoElements.img) {
+    userInfoElements.img.src = userData.foto_perfil;
+  }
 }
 
 export function checkUserRole(requiredRole) {

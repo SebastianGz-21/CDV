@@ -18,6 +18,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
       document.querySelector('.logout-btn').addEventListener('click', cerrarSesion);
 
+    // Vista previa de foto de perfil
+    const inputFoto = document.getElementById('fotoPerfil');
+    const previewFoto = document.getElementById('previewFoto');
+    const btnSeleccionarFoto = document.getElementById('btnSeleccionarFoto');
+
+    btnSeleccionarFoto.addEventListener('click', () => {
+        inputFoto.click();
+    });
+
+    inputFoto.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validar tamaño (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('La imagen no debe superar los 5MB');
+                inputFoto.value = '';
+                return;
+            }
+
+            // Validar tipo
+            if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+                alert('Solo se permiten imágenes JPG o PNG');
+                inputFoto.value = '';
+                return;
+            }
+
+            // Mostrar vista previa
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewFoto.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
     // Configurar botón volver dinámico
     function updateBtnVolverRegistro() {
       const btnVolver = document.getElementById('btnVolverRegistro');
@@ -185,6 +220,10 @@ async function cargarDatosEmpleado(idEmpleado) {
     document.getElementById('correo').value = empleado.correo_electronico;
     document.getElementById('rol').value = empleado.rol;
     
+    // Cargar foto de perfil si existe
+    if (empleado.foto_perfil) {
+      document.getElementById('previewFoto').src = empleado.foto_perfil;
+    }
 
         // Remover atributo required de los campos de contraseña en modo edición
     document.getElementById('contraseña').removeAttribute('required');
@@ -227,36 +266,38 @@ formRegistro.addEventListener('submit', async function(e) {
         const url = idEmpleado ? `/api/auth/actualizar/${idEmpleado}` : '/api/auth/registrar';
         const method = idEmpleado ? 'PUT' : 'POST';
 
-        // Preparar datos para enviar
-        const datos = {
-            nombre: formData.get('nombre'),
-            apellido: formData.get('apellido'),
-            dni: formData.get('DNI'),
-            domicilio: formData.get('domicilio'),
-            telefono: formData.get('telefono'),
-            area: formData.get('area'),
-            correo_electronico: formData.get('correo'),
-            rol: formData.get('rol')
-        };
+        // Crear FormData para enviar con la imagen
+        const datos = new FormData();
+        datos.append('nombre', formData.get('nombre'));
+        datos.append('apellido', formData.get('apellido'));
+        datos.append('dni', formData.get('DNI'));
+        datos.append('domicilio', formData.get('domicilio'));
+        datos.append('telefono', formData.get('telefono'));
+        datos.append('area', formData.get('area'));
+        datos.append('correo_electronico', formData.get('correo'));
+        datos.append('rol', formData.get('rol'));
+
+        // Agregar foto de perfil si existe
+        const fotoPerfil = document.getElementById('fotoPerfil').files[0];
+        if (fotoPerfil) {
+            datos.append('fotoPerfil', fotoPerfil);
+        }
 
         // Solo incluir contraseña si se proporcionó una nueva
         const nuevaContraseña = formData.get('contraseña');
         console.log('Nueva contraseña:', nuevaContraseña); // DEBUG
         if (nuevaContraseña && nuevaContraseña.trim() !== '') {
-            datos.contrasena = nuevaContraseña;
+            datos.append('contrasena', nuevaContraseña);
         }
-
-        console.log('Datos a enviar:', datos); // DEBUG
-
 
         try {
             const response = await fetch(url, {
                 method: method,
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+                    // NO incluir 'Content-Type' - FormData lo establece automáticamente
                 },
-                body: JSON.stringify(datos)
+                body: datos
 
             });
 

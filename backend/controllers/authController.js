@@ -49,6 +49,9 @@ const registrar = async (req, res) => {
     // ✅ Usar 12 rounds en lugar de 10 para mayor seguridad
     const hashedPassword = await bcrypt.hash(contrasena, 12);
     
+    // Obtener ruta de la foto de perfil si fue subida
+    const fotoPerfil = req.file ? `/uploads/fotos_perfil/${req.file.filename}` : null;
+    
     await empleadoModel.crearEmpleado(
       nombre,
       req.body.apellido || '',
@@ -58,7 +61,8 @@ const registrar = async (req, res) => {
       req.body.area || '',
       hashedPassword,
       correo_electronico,
-      rol
+      rol,
+      fotoPerfil
     );
 
     res.status(201).json({ mensaje: 'Empleado registrado' });
@@ -89,7 +93,12 @@ const login = async (req, res) => {
 
     // ✅ JWT_SECRET desde .env y expiración reducida a 4 horas
     const token = jwt.sign(
-      { id_empleado: empleado.id_empleado, rol: empleado.rol, nombre: empleado.nombre},
+      { 
+        id_empleado: empleado.id_empleado, 
+        rol: empleado.rol, 
+        nombre: empleado.nombre,
+        foto_perfil: empleado.foto_perfil
+      },
       process.env.JWT_SECRET,
       { expiresIn: '4h' }
     );
@@ -125,6 +134,11 @@ const actualizar = async (req, res) => {
       // ✅ Usar 12 rounds para mayor seguridad
       const hashedPassword = await bcrypt.hash(datos.contrasena, 12);
       datosActualizados.contrasena = hashedPassword;
+    }
+
+    // Si se subió una nueva foto de perfil
+    if (req.file) {
+      datosActualizados.foto_perfil = `/uploads/fotos_perfil/${req.file.filename}`;
     }
 
     await empleadoModel.actualizarEmpleado(id, datosActualizados);

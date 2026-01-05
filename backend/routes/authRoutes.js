@@ -7,6 +7,7 @@ const authController = require('../controllers/authController');
 const autorizarRol = require('../middlewares/autorizarRol');
 const verificarToken = require('../middlewares/verificarToken');
 const { verificarDNIUnico } = require('../models/empleadoModel'); // Ajusta la ruta
+const uploadFotoPerfil = require('../middlewares/multerFotoPerfil');
 
 // ✅ Rate Limiting para prevenir ataques de fuerza bruta
 const loginLimiter = rateLimit({
@@ -19,7 +20,7 @@ const loginLimiter = rateLimit({
 });
 
 // Ruta para registrar un nuevo usuario
-router.post('/registrar', verificarToken, autorizarRol("administrador"), authController.registrar);
+router.post('/registrar', verificarToken, autorizarRol("administrador"), uploadFotoPerfil.single('fotoPerfil'), authController.registrar);
 
 // ✅ Ruta para loguear un usuario CON RATE LIMITING
 router.post('/login', loginLimiter, authController.login);
@@ -28,7 +29,7 @@ router.post('/login', loginLimiter, authController.login);
 router.delete('/eliminar', verificarToken, autorizarRol('administrador'), authController.eliminar);
 
 // Ruta para actualizar usuario
-router.put('/actualizar/:id_empleado', verificarToken, autorizarRol('administrador'), authController.actualizar);
+router.put('/actualizar/:id_empleado', verificarToken, autorizarRol('administrador'), uploadFotoPerfil.single('fotoPerfil'), authController.actualizar);
 
 // Ruta para desactivar usuario
 router.put('/desactivar/:id_empleado', verificarToken, autorizarRol('administrador'), authController.desactivar);

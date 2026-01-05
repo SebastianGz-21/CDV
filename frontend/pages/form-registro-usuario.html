@@ -42,6 +42,22 @@
         <form id="formRegistro">
           <div class="form-section">
             <h3>Datos personales</h3>
+            
+            <div class="form-group full-width" style="text-align: center; margin-bottom: 20px;">
+              <label for="fotoPerfil" style="display: block; margin-bottom: 10px;">Foto de perfil (opcional)</label>
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
+                <img id="previewFoto" src="../img/empleado.png" alt="Vista previa" 
+                     style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #ddd;" />
+                <input type="file" id="fotoPerfil" name="fotoPerfil" accept="image/jpeg,image/png,image/jpg" 
+                       style="display: none;" />
+                <button type="button" id="btnSeleccionarFoto" class="btn-secondary" 
+                        style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                  <i class="fas fa-camera"></i> Seleccionar foto
+                </button>
+                <small style="color: #666;">JPG o PNG, máximo 5MB</small>
+              </div>
+            </div>
+
             <div class="form-row">
               <div class="form-group">
                 <label for="nombre">Nombre/s</label>

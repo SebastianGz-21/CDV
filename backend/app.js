@@ -82,6 +82,9 @@ app.use('/uploads/documentos_comercio', express.static(path.join(__dirname, 'upl
 // ✅ Servir documentos de transportes SIN autenticación (información pública del comercio)
 app.use('/uploads/documentos_transporte', express.static(path.join(__dirname, 'uploads/documentos_transporte')));
 
+// ✅ Servir fotos de perfil SIN autenticación (se muestran en todos los dashboards)
+app.use('/uploads/fotos_perfil', express.static(path.join(__dirname, 'uploads/fotos_perfil')));
+
 // ✅ Servir archivos subidos con autenticación y validación segura (EXCEPTO las rutas públicas anteriores)
 app.use('/uploads', servirArchivosSeguro, validarRutaSegura, express.static(path.join(__dirname, 'uploads')));
 

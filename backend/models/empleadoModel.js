@@ -12,7 +12,7 @@ const crearEmpleado = async (nombre, apellido, dni, domicilio, telefono, area, c
   await db.query(query, []);
 };
  */
-const crearEmpleado = async (nombre, apellido, dni, domicilio, telefono, area, contrasena, correo_electronico, rol) => {
+const crearEmpleado = async (nombre, apellido, dni, domicilio, telefono, area, contrasena, correo_electronico, rol, foto_perfil = null) => {
   // Verificar DNI y correo únicos
   if (!await verificarDNIUnico(dni)) {
     throw new Error('DNI ya registrado');
@@ -23,11 +23,11 @@ const crearEmpleado = async (nombre, apellido, dni, domicilio, telefono, area, c
 
   const query = `
     INSERT INTO empleado 
-    (nombre, apellido, dni, domicilio, telefono, area, contraseña, correo_electronico, rol) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (nombre, apellido, dni, domicilio, telefono, area, contraseña, correo_electronico, rol, foto_perfil) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
   await db.query(query, [
-    nombre, apellido, dni, domicilio, telefono, area, contrasena, correo_electronico, rol
+    nombre, apellido, dni, domicilio, telefono, area, contrasena, correo_electronico, rol, foto_perfil
   ]);
 };
 
@@ -61,7 +61,8 @@ const actualizarEmpleado = async (id_empleado, datos) => {
     correo_electronico, 
     rol,
     activo,
-    contrasena // <- puede ser undefined
+    contrasena, // <- puede ser undefined
+    foto_perfil // <- puede ser undefined
   } = datos;
 
   let query = `
@@ -93,6 +94,11 @@ const actualizarEmpleado = async (id_empleado, datos) => {
   if (contrasena) {
     query += `, contraseña = ?`;
     valores.push(contrasena);
+  }
+
+  if (foto_perfil !== undefined) {
+    query += `, foto_perfil = ?`;
+    valores.push(foto_perfil);
   }
 
   query += ` WHERE id_empleado = ?`;

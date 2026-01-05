@@ -3,3 +3,14 @@ Thumbs.db
 *.log
 backend/node_modules/
 backend/uploads/
+backend/.env
+.env
+node_modules/
+uploads/qr/
+uploads/constancias/
+uploads/documentos_comercio/
+uploads/documentos_transporte/
+uploads/documentos_titular/
+uploads/renovaciones/
+uploads/procedimientos/
+logs/

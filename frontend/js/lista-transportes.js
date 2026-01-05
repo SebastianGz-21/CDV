@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (claseFila) fila.classList.add(claseFila);
 
       fila.innerHTML = `
-      <td>${transporte.titular_dni || '-'}</td>
+      <td><strong>${transporte.id_transporte || '-'}</strong></td>
       <td>${transporte.titular_nombre || '-'}</td>
       <td>${transporte.tipo_vehiculo || '-'}</td>
       <td>${transporte.tipo_alimento || '-'}</td>

@@ -457,15 +457,6 @@ html {
 
 /* Ajustes para móviles */
 @media (max-width: 600px) {
-  .filtros-comercios {
-    flex-direction: column;
-  }
-
-  #btn-reset {
-    align-self: stretch;
-    margin-left: 0;
-  }
-  
   .titulo-contenedor {
     position: relative;
     padding-top: 50px;
