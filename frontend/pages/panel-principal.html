@@ -7,7 +7,6 @@
   <title>Panel Principal - Calidad de Vida</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="../styles/panel-principal.css" />
-
 </head>
 
 <body class="dashboard-body">
@@ -22,19 +21,20 @@
       </div>
       <button class="logout-btn">Cerrar sesión</button>
     </div>
-    
+
     <div class="main-panel">
+      <!-- Header -->
       <div class="header-container">
-        <div class="logo-calidad">
-          <img src="../img/logo-calidad.png" alt="Logo Calidad de Vida" />
-        </div>
-        
+        <a href="../pages/panel-principal.html" class="logo-calidad">
+          <img src="../img/logo-calidad.png" alt="Logo Calidad de Vida">
+        </a>
         <div class="header">
           <h1>Dirección de Calidad de Vida</h1>
           <h2>Panel principal</h2>
         </div>
       </div>
 
+      <!-- Botones de administración -->
       <div class="admin-actions">
         <a href="./lista-comercios.html" class="admin-btn">
           <i class="fas fa-store"></i> Ver Comercios
@@ -56,6 +56,7 @@
         </a>
       </div>
 
+      <!-- Grid de áreas -->
       <div class="buttons-grid">
         <a href="./bromatologia.html" class="area-btn area-bromatologia">
           <span>Bromatología</span>
@@ -79,5 +80,4 @@
 
   <script type="module" src="../js/panel-principal.js"></script>
 </body>
-
 </html>

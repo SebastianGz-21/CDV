@@ -1,3 +1,4 @@
+/* CSS actualizado con transparencia y colores de Santiago del Estero */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -10,7 +11,9 @@ body, html {
   font-size: 15px;
   line-height: 1.35;
   color: #2C3E50;
-  background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+  /* Fondo con gradiente e imagen superpuesta */
+  background: 
+    url('../img/parque-gris.png') center/cover no-repeat fixed;
   overflow: hidden;
 }
 
@@ -19,7 +22,8 @@ body, html {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px;
+  padding: 10px;  
+  opacity: 0.99;
 }
 
 .login-container {
@@ -29,11 +33,13 @@ body, html {
 }
 
 .login-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   border-radius: 10px;
-  box-shadow: 0 8px 25px rgba(44, 62, 80, 0.12);
+  box-shadow: 0 8px 25px rgba(44, 62, 80, 0.15);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   position: relative;
   max-height: 520px;
 }
@@ -45,21 +51,21 @@ body, html {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #C8102E 0%, #0038A8 50%, #D4AF37 100%);
+  background: linear-gradient(90deg, #C8102E 0%, #FFFFFF 50%, #0038A8 100%);
 }
 
 /* HEADER COMPACTO - CENTRADO */
 .card-header {
-  background: linear-gradient(135deg, #0038A8 0%, #00267A 100%);
+  background: linear-gradient(135deg, rgba(0, 56, 168, 0.9) 0%, rgba(0, 38, 122, 0.9) 100%);
   padding: 15px 20px;
 }
 
 .header-content {
   display: flex;
   align-items: center;
-  justify-content: center; /* Añadido para centrar horizontalmente */
+  justify-content: center;
   gap: 15px;
-  text-align: center; /* Añadido para centrar el texto */
+  text-align: center;
 }
 
 .logo-img {
@@ -72,7 +78,7 @@ body, html {
 
 .header-text {
   flex: 1;
-  text-align: center; /* Cambiado de left a center */
+  text-align: center;
 }
 
 .system-title {
@@ -93,7 +99,7 @@ body, html {
 .province-text {
   font-size: 0.8rem;
   font-weight: 400;
-  color: #D4AF37;
+  color: #FFFFFF;
   margin: 0;
 }
 
@@ -153,8 +159,8 @@ body, html {
   width: 100%;
   padding: 10px 12px;
   font-size: 0.95rem;
-  background: #F8F9FA;
-  border: 2px solid #E9ECEF;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid rgba(0, 56, 168, 0.2);
   border-radius: 6px;
   color: #2C3E50;
   transition: all 0.3s ease;
@@ -188,19 +194,19 @@ body, html {
 }
 
 .password-toggle:hover {
-  background: #E9ECEF;
+  background: rgba(0, 56, 168, 0.1);
   color: #0038A8;
 }
 
 .attempts-warning {
-  background: #FFEAA7;
-  color: #E17055;
+  background: rgba(255, 234, 167, 0.8);
+  color: #C8102E;
   padding: 8px 10px;
   border-radius: 5px;
   font-size: 0.85rem;
   font-weight: 500;
   margin: 10px 0;
-  border-left: 3px solid #FDCB6E;
+  border-left: 3px solid #C8102E;
   display: none;
 }
 
@@ -257,7 +263,7 @@ body, html {
 .security-section {
   text-align: center;
   padding-top: 15px;
-  border-top: 1px solid #E9ECEF;
+  border-top: 1px solid rgba(0, 56, 168, 0.2);
   margin-top: 12px;
 }
 
@@ -265,14 +271,14 @@ body, html {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: #E3F2FD;
+  background: rgba(0, 56, 168, 0.1);
   color: #0038A8;
   padding: 5px 10px;
   border-radius: 14px;
   font-size: 0.8rem;
   font-weight: 500;
   margin-bottom: 6px;
-  border: 1px solid #BBDEFB;
+  border: 1px solid rgba(0, 56, 168, 0.2);
 }
 
 .security-icon {
@@ -304,8 +310,8 @@ body, html {
   width: 50px;
   height: 50px;
   margin: 0 auto 12px;
-  background: #FFEAA7;
-  color: #E17055;
+  background: rgba(255, 234, 167, 0.8);
+  color: #C8102E;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -314,8 +320,8 @@ body, html {
 }
 
 .error-icon.locked {
-  background: #FFF3CD;
-  color: #D4AF37;
+  background: rgba(255, 243, 205, 0.8);
+  color: #C8102E;
 }
 
 .error-message {
@@ -359,9 +365,9 @@ body, html {
 }
 
 .action-btn.secondary {
-  background: white;
+  background: rgba(255, 255, 255, 0.8);
   color: #0038A8;
-  border: 2px solid #E9ECEF;
+  border: 2px solid rgba(0, 56, 168, 0.2);
 }
 
 .action-btn.secondary:hover {
@@ -375,9 +381,9 @@ body, html {
   text-align: center;
   margin: 10px 0;
   padding: 10px;
-  background: #F8F9FA;
+  background: rgba(248, 249, 250, 0.7);
   border-radius: 6px;
-  border: 1px solid #E9ECEF;
+  border: 1px solid rgba(0, 56, 168, 0.2);
 }
 
 .countdown-label {
@@ -394,7 +400,7 @@ body, html {
   background: white;
   padding: 6px 12px;
   border-radius: 5px;
-  border: 2px solid #FFEAA7;
+  border: 2px solid rgba(255, 234, 167, 0.8);
   display: inline-block;
   min-width: 65px;
 }
@@ -404,9 +410,9 @@ body, html {
   align-items: center;
   gap: 8px;
   padding: 10px;
-  background: #FFF3CD;
+  background: rgba(255, 243, 205, 0.8);
   border-radius: 6px;
-  border-left: 3px solid #D4AF37;
+  border-left: 3px solid #C8102E;
 }
 
 .admin-icon {

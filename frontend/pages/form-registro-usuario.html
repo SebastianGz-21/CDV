@@ -24,118 +24,117 @@
     </div>
 
     <div class="main-panel">
+      <div class="header-container">
+        <a href="../pages/panel-principal.html" class="logo-calidad">
+          <img src="../img/logo-calidad.png" alt="Logo Calidad de Vida" />
+        </a>
+      </div>
 
-      <a href="../pages/panel-principal.html" class="logo-calidad">
-        <img src="../img/logo-calidad.png" alt="Logo Calidad de Vida" />
-      </a>
-
-      <div class="titulo-contenedor" style="margin-bottom: 20px;">
+      <div class="titulo-contenedor">
         <a href="../pages/panel-principal.html" id="btnVolverRegistro" class="boton-volver" aria-label="Volver">
           <i class="fas fa-arrow-left"></i> Volver
         </a>
         <div class="titulo-area">
-          <h1 style="text-align: center; margin-bottom: 0;">Registro de empleado</h1>
+          <h1><i class="fas fa-user-plus"></i> Registro de Empleado</h1>
         </div>
       </div>
 
-      <div class="contenedor-blanco">
-        <form id="formRegistro">
-          <div class="form-section">
-            <h3>Datos personales</h3>
-            
-            <div class="form-group full-width" style="text-align: center; margin-bottom: 20px;">
-              <label for="fotoPerfil" style="display: block; margin-bottom: 10px;">Foto de perfil (opcional)</label>
-              <div style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
-                <img id="previewFoto" src="../img/empleado.png" alt="Vista previa" 
-                     style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #ddd;" />
-                <input type="file" id="fotoPerfil" name="fotoPerfil" accept="image/jpeg,image/png,image/jpg" 
-                       style="display: none;" />
-                <button type="button" id="btnSeleccionarFoto" class="btn-secondary" 
-                        style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                  <i class="fas fa-camera"></i> Seleccionar foto
-                </button>
-                <small style="color: #666;">JPG o PNG, máximo 5MB</small>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="nombre">Nombre/s</label>
-                <input type="text" id="nombre" name="nombre" required />
+      <div class="contenedor-tabla">
+        <div class="form-container">
+          <form id="formRegistro">
+            <div class="form-section">
+              <h3>Datos personales</h3>
+              
+              <div class="foto-perfil-container">
+                <img id="previewFoto" src="../img/empleado.png" alt="Vista previa" />
+                <div class="foto-actions">
+                  <input type="file" id="fotoPerfil" name="fotoPerfil" accept="image/jpeg,image/png,image/jpg" style="display: none;" />
+                  <button type="button" id="btnSeleccionarFoto" class="btn-secondary">
+                    <i class="fas fa-camera"></i> Seleccionar foto
+                  </button>
+                  <span class="foto-hint">JPG o PNG, máximo 5MB</span>
+                </div>
               </div>
 
-              <div class="form-group">
-                <label for="apellido">Apellido/s</label>
-                <input type="text" id="apellido" name="apellido" required />
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="nombre">Nombre/s</label>
+                  <input type="text" id="nombre" name="nombre" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="apellido">Apellido/s</label>
+                  <input type="text" id="apellido" name="apellido" required />
+                </div>
               </div>
-            </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label for="DNI">DNI</label>
-                <input type="text" id="DNI" name="DNI" required />
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="DNI">DNI</label>
+                  <input type="text" id="DNI" name="DNI" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="telefono">Teléfono</label>
+                  <input type="text" id="telefono" name="telefono" required />
+                </div>
               </div>
 
-              <div class="form-group">
-                <label for="telefono">Teléfono</label>
-                <input type="text" id="telefono" name="telefono" required />
-              </div>
-            </div>
-
-            <div class="form-group full-width">
-              <label for="domicilio">Domicilio</label>
-              <input type="text" id="domicilio" name="domicilio" required />
-            </div>
-
-            <div class="form-group">
-              <label for="area">Área</label>
-              <select id="area" name="area" required>
-                <option value="" disabled selected>Seleccione...</option>
-                <option value="Bromatología">Bromatología</option>
-                <option value="Técnica">Técnica</option>
-                <option value="Saneamiento">Saneamiento</option>
-                <option value="Seguridad">Seguridad</option>
-                <option value="Sonido">Sonido</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-section">
-            <h3>Credenciales de acceso</h3>
-            <div class="form-group full-width">
-              <label for="correo">Correo electrónico</label>
-              <input type="email" id="correo" name="correo" required />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="contraseña">Contraseña</label>
-                <input type="password" id="contraseña" name="contraseña" required />
+              <div class="form-group full-width">
+                <label for="domicilio">Domicilio</label>
+                <input type="text" id="domicilio" name="domicilio" required />
               </div>
 
               <div class="form-group">
-                <label for="confirmarC">Confirmar contraseña</label>
-                <input type="password" id="confirmarC" name="confirmarC" required />
+                <label for="area">Área</label>
+                <select id="area" name="area" required>
+                  <option value="" disabled selected>Seleccione...</option>
+                  <option value="Bromatología">Bromatología</option>
+                  <option value="Técnica">Técnica</option>
+                  <option value="Saneamiento">Saneamiento</option>
+                  <option value="Seguridad">Seguridad</option>
+                  <option value="Sonido">Sonido</option>
+                </select>
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="rol">Asignar rol</label>
-              <select id="rol" name="rol" required>
-                <option value="" disabled selected>Seleccione...</option>
-                <option value="Administrador">Administrador</option>
-                <option value="Administrativo">Empleado</option>
-                <option value="Inspector">Inspector</option>
-              </select>
-            </div>
-          </div>
+            <div class="form-section">
+              <h3>Credenciales de acceso</h3>
+              <div class="form-group full-width">
+                <label for="correo">Correo electrónico</label>
+                <input type="email" id="correo" name="correo" required />
+              </div>
 
-          <div class="form-actions">
-            <button type="submit" class="boton-alta">
-              <i class="fas fa-user-plus"></i> Confirmar alta
-            </button>
-          </div>
-        </form>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="contraseña">Contraseña</label>
+                  <input type="password" id="contraseña" name="contraseña" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="confirmarC">Confirmar contraseña</label>
+                  <input type="password" id="confirmarC" name="confirmarC" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="rol">Asignar rol</label>
+                <select id="rol" name="rol" required>
+                  <option value="" disabled selected>Seleccione...</option>
+                  <option value="Administrador">Administrador</option>
+                  <option value="Administrativo">Empleado</option>
+                  <option value="Inspector">Inspector</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="boton-alta">
+                <i class="fas fa-user-plus"></i> Confirmar alta
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>

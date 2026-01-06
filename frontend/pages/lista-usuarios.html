@@ -31,56 +31,80 @@
       </div>
 
       <div class="titulo-contenedor">
-        <a href="../pages/panel-principal.html" class="boton-volver" aria-label="Volver">
+        <a href="../pages/panel-principal.html" id="btnVolverUsuarios" class="boton-volver" aria-label="Volver">
           <i class="fas fa-arrow-left"></i> Volver
         </a>
         <div class="titulo-area">
-          <h1>Lista de Empleados</h1>
+          <h1><i class="fas fa-users"></i> Lista de Empleados</h1>
         </div>
       </div>
 
-      <div class="table-container">
-        <div class="table-actions" style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:1rem;">
-          <div class="input-group acciones-busqueda" style="max-width:520px;">
+      <!-- Filtros y Búsqueda -->
+      <div class="filtros-usuarios">
+        <div class="filtro-grupo">
+          <label for="buscarUsuario">Buscar por Nombre o DNI:</label>
+          <div class="input-group">
             <span class="input-group-text"><i class="fas fa-search"></i></span>
             <input type="text" id="buscarUsuario" class="form-control" placeholder="Buscar por nombre o DNI" autocomplete="off" />
           </div>
-          <div style="display:flex; align-items:center; gap:12px;">
+        </div>
+        
+        <div class="filtro-grupo">
+          <label for="filtroArea">Área:</label>
+          <select id="filtroArea">
+            <option value="">Todas</option>
+            <option value="Bromatología">Bromatología</option>
+            <option value="Saneamiento">Saneamiento</option>
+            <option value="Seguridad">Seguridad</option>
+            <option value="Sonido">Sonido</option>
+          </select>
+        </div>
+        
+        <div class="filtro-grupo">
+          <label for="filtroRol">Rol:</label>
+          <select id="filtroRol">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        
+        <div class="filtro-grupo">
+          <label for="filtroEstado">Estado:</label>
+          <select id="filtroEstado">
+            <option value="">Todos</option>
+            <option value="activo">Activo</option>
+            <option value="inactivo">Inactivo</option>
+          </select>
+        </div>
+        
+        <button id="btn-buscar" class="boton-primario">
+          <i class="fas fa-search"></i> Buscar
+        </button>
+        <button id="btn-reset" class="boton-primario">
+          <i class="fas fa-undo"></i> Reestablecer
+        </button>
+      </div>
+
+      <!-- Contenedor blanco para tabla -->
+      <div class="contenedor-tabla">
+        <div class="acciones-busqueda">
+          <div style="display:flex; align-items:center; gap:12px; flex:1;">
             <span id="totalEmpleados" style="font-weight: 600; font-size: 14px;">Cantidad de empleados: 0</span>
-            <a href="./form-registro-usuario.html" id="btnNuevoEmpleado" class="btn-add">
-              <i class="fas fa-user-plus"></i> Nuevo Empleado
-            </a>
           </div>
+          <a href="./form-registro-usuario.html" id="btnNuevoEmpleado" class="btn-add">
+            <i class="fas fa-user-plus"></i> Nuevo Empleado
+          </a>
         </div>
 
         <div class="tabla-container">
-          <table id="usuariosTable">
+          <table class="tabla-datos" id="usuariosTable">
             <thead>
               <tr>
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>DNI</th>
-                <th>Área
-                  <div>
-                    <select id="filtroArea">
-                      <option value="">Todas</option>
-                      <option value="Bromatología">Bromatología</option>
-                      <option value="Saneamiento">Saneamiento</option>
-                      <option value="Seguridad">Seguridad</option>
-                      <option value="Sonido">Sonido</option>
-                    </select>
-                  </div>
-                </th>
-                <th>Rol
-                  <div><select id="filtroRol"><option value="">Todos</option></select></div>
-                </th>
-                <th>Estado
-                  <div><select id="filtroEstado">
-                    <option value="">Todos</option>
-                    <option value="activo">Activo</option>
-                    <option value="inactivo">Inactivo</option>
-                  </select></div>
-                </th>
+                <th>Área</th>
+                <th>Rol</th>
+                <th>Estado</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -91,12 +115,12 @@
         </div>
 
         <!-- Paginación -->
-        <div class="pagination-container" style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:20px; padding:15px 0;">
-          <button type="button" id="btnPrevPagina" class="btn-pagina" style="display:none;">
+        <div class="paginacion">
+          <button id="btn-anterior" class="boton-secundario" disabled>
             <i class="fas fa-chevron-left"></i> Anterior
           </button>
-          <div id="paginasContainer" style="display:flex; gap:5px; flex-wrap:wrap; justify-content:center;"></div>
-          <button type="button" id="btnNextPagina" class="btn-pagina" style="display:none;">
+          <span id="info-pagina" class="texto-paginacion">Página 1 de 1</span>
+          <button id="btn-siguiente" class="boton-secundario" disabled>
             Siguiente <i class="fas fa-chevron-right"></i>
           </button>
         </div>

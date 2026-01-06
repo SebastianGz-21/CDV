@@ -564,10 +564,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Mapeo de categorías a rubros
   const categoriasRubros = {
-    "Comercio en general": ["Supermercado","Panaderia", "Almacén", "Farmacia", "Carniceria"],
-    "Vendedores ambulantes": ["Comida rápida", "Bebidas", "Artículos varios"],
-    "Bares nocturnos": ["Bar", "Restaurante", "Pub"],
-    "Food trucks": []
+    "comercio en general": ["Supermercado","Panaderia", "Almacén", "Farmacia", "Carniceria"],
+    "vendedor ambulante": ["Comida rápida", "Bebidas", "Artículos varios"],
+    "bares nocturnos, confiterias y restaurantes": ["Bar", "Restaurante", "Pub"],
+    "food truck": []
   };
 
   // Función para determinar el estado de vencimiento

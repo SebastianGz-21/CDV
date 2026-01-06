@@ -1,22 +1,20 @@
-import { checkAuth, infoUsuario } from '../auth.js';    
-
+import { checkAuth, infoUsuario } from '../auth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const idEmpleado = urlParams.get('id'); // <- DEFINILA ACÁ
-
+    const idEmpleado = urlParams.get('id');
 
     const userData = checkAuth(); 
     if (!userData) return;
 
     infoUsuario(userData);
     
-
     function cerrarSesion() {
       sessionStorage.removeItem('token');
-      window.location.href = "login.html";}
+      window.location.href = "login.html";
+    }
 
-      document.querySelector('.logout-btn').addEventListener('click', cerrarSesion);
+    document.querySelector('.logout-btn').addEventListener('click', cerrarSesion);
 
     // Vista previa de foto de perfil
     const inputFoto = document.getElementById('fotoPerfil');
@@ -68,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     updateBtnVolverRegistro();
-
 
     // Elementos del formulario
     const formRegistro = document.getElementById('formRegistro');
@@ -126,8 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elemento.classList.remove('input-error');
     }
 
-
-
+    // Validaciones en tiempo real
     document.getElementById('telefono').addEventListener('blur', function() {
         if (!validarTelefono(this.value)) {
             mostrarError(this, 'El teléfono debe tener entre 10 y 15 dígitos');
@@ -162,169 +158,199 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Validación en tiempo real del DNI (verifica disponibilidad en backend)
-document.getElementById('DNI').addEventListener('blur', async function() {
-  const dni = this.value.trim();
-  const idEmpleado = new URLSearchParams(window.location.search).get('id'); // Para edición
+    document.getElementById('DNI').addEventListener('blur', async function() {
+      const dni = this.value.trim();
+      const idEmpleado = new URLSearchParams(window.location.search).get('id');
 
-  // Validación local del formato
-  if (!/^\d{7,8}$/.test(dni)) {
-    mostrarError(this, 'El DNI debe tener 7 u 8 dígitos');
-    return;
-  }
+      // Validación local del formato
+      if (!/^\d{7,8}$/.test(dni)) {
+        mostrarError(this, 'El DNI debe tener 7 u 8 dígitos');
+        return;
+      }
 
-  try {
-    // Llamada al backend incluyendo idExcluido si estamos editando
-    const url = `/api/auth/verificar-dni?dni=${encodeURIComponent(dni)}${idEmpleado ? `&idExcluido=${idEmpleado}` : ''}`;
-    const response = await fetch(url);
+      try {
+        // Llamada al backend incluyendo idExcluido si estamos editando
+        const url = `/api/auth/verificar-dni?dni=${encodeURIComponent(dni)}${idEmpleado ? `&idExcluido=${idEmpleado}` : ''}`;
+        const response = await fetch(url);
 
-    if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
 
-    const { disponible } = await response.json();
+        const { disponible } = await response.json();
 
-    if (!disponible) {
-      mostrarError(this, 'Este DNI ya está registrado');
-    } else {
-      limpiarError(this);
-    }
-  } catch (error) {
-    console.error('Error al validar DNI:', error);
-    mostrarError(this, 'No se pudo verificar el DNI. Intente nuevamente.');
-  }
-});
-
-// Función para cargar datos del empleado a editar
-console.log('ID empleado a editar:', idEmpleado);
-
-
-async function cargarDatosEmpleado(idEmpleado) {
-  try {
-    const response = await fetch(`/api/auth/${idEmpleado}`, {
-      headers: {
-        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+        if (!disponible) {
+          mostrarError(this, 'Este DNI ya está registrado');
+        } else {
+          limpiarError(this);
+        }
+      } catch (error) {
+        console.error('Error al validar DNI:', error);
+        mostrarError(this, 'No se pudo verificar el DNI. Intente nuevamente.');
       }
     });
-    
-    if (!response.ok) {
-      throw new Error('Error al cargar datos del empleado');
-    }
-    
-    const empleado = await response.json();
-    
-    // Llenar el formulario con los datos
-    document.getElementById('nombre').value = empleado.nombre;
-    document.getElementById('apellido').value = empleado.apellido;
-    document.getElementById('DNI').value = empleado.dni;
-    document.getElementById('domicilio').value = empleado.domicilio;
-    document.getElementById('telefono').value = empleado.telefono;
-    document.getElementById('area').value = empleado.area;
-    document.getElementById('correo').value = empleado.correo_electronico;
-    document.getElementById('rol').value = empleado.rol;
-    
-    // Cargar foto de perfil si existe
-    if (empleado.foto_perfil) {
-      document.getElementById('previewFoto').src = empleado.foto_perfil;
-    }
+
+    // Función para cargar datos del empleado a editar
+    console.log('ID empleado a editar:', idEmpleado);
+
+    async function cargarDatosEmpleado(idEmpleado) {
+      try {
+        const response = await fetch(`/api/auth/${idEmpleado}`, {
+          headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Error al cargar datos del empleado');
+        }
+        
+        const empleado = await response.json();
+        
+        // Llenar el formulario con los datos
+        document.getElementById('nombre').value = empleado.nombre;
+        document.getElementById('apellido').value = empleado.apellido;
+        document.getElementById('DNI').value = empleado.dni;
+        document.getElementById('domicilio').value = empleado.domicilio;
+        document.getElementById('telefono').value = empleado.telefono;
+        document.getElementById('area').value = empleado.area;
+        document.getElementById('correo').value = empleado.correo_electronico;
+        document.getElementById('rol').value = empleado.rol;
+        
+        // Cargar foto de perfil si existe
+        if (empleado.foto_perfil) {
+          document.getElementById('previewFoto').src = empleado.foto_perfil;
+        }
 
         // Remover atributo required de los campos de contraseña en modo edición
-    document.getElementById('contraseña').removeAttribute('required');
-    document.getElementById('confirmarC').removeAttribute('required');
-    
-    // Agregar texto indicativo
-    const labelContraseña = document.querySelector('label[for="contraseña"]');
-    labelContraseña.innerHTML += ' <span style="color: #666; font-weight: normal;">(dejar en blanco para mantener la actual)</span>';
-    
+        document.getElementById('contraseña').removeAttribute('required');
+        document.getElementById('confirmarC').removeAttribute('required');
+        
+        // Agregar texto indicativo
+        const labelContraseña = document.querySelector('label[for="contraseña"]');
+        labelContraseña.innerHTML += ' <span style="color: #666; font-weight: normal;">(dejar en blanco para mantener la actual)</span>';
+        
+        // Cambiar el texto del botón
+        const botonSubmit = document.querySelector('.boton-alta');
+        botonSubmit.innerHTML = '<i class="fas fa-user-edit"></i> Actualizar empleado';
+        
+        // Agregar ID oculto al formulario
+        const inputOculto = document.createElement('input');
+        inputOculto.type = 'hidden';
+        inputOculto.name = 'id_empleado';
+        inputOculto.value = idEmpleado;
+        formRegistro.appendChild(inputOculto);
+        
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar datos del empleado');
+      }
+    }
 
-    // Cambiar el texto del botón
-    const botonSubmit = document.querySelector('.boton-alta');
-    botonSubmit.innerHTML = '<i class="fas fa-user-edit"></i> Actualizar empleado';
-    
-    // Agregar ID oculto al formulario
-    const inputOculto = document.createElement('input');
-    inputOculto.type = 'hidden';
-    inputOculto.name = 'id_empleado';
-    inputOculto.value = idEmpleado;
-    formRegistro.appendChild(inputOculto);
-    
-  } catch (error) {
-    console.error('Error:', error);
-    alert('Error al cargar datos del empleado');
-  }
-}
+    // Modificar el evento submit del formulario
+    formRegistro.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        let formularioValido = true;
 
+        // Validaciones básicas
+        const nombre = document.getElementById('nombre').value;
+        const apellido = document.getElementById('apellido').value;
+        const dni = document.getElementById('DNI').value;
+        const telefono = document.getElementById('telefono').value;
+        const correo = document.getElementById('correo').value;
+        const contrasena = document.getElementById('contraseña').value;
+        const confirmarContrasena = document.getElementById('confirmarC').value;
+        const idEmpleado = document.querySelector('input[name="id_empleado"]')?.value;
 
-
-// Modificar el evento submit del formulario
-formRegistro.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    let formularioValido = true;
-
-    // Validaciones previas (mantener las existentes)
-    
-    if (formularioValido) {
-        const formData = new FormData(formRegistro);
-        const idEmpleado = formData.get('id_empleado');
-        const url = idEmpleado ? `/api/auth/actualizar/${idEmpleado}` : '/api/auth/registrar';
-        const method = idEmpleado ? 'PUT' : 'POST';
-
-        // Crear FormData para enviar con la imagen
-        const datos = new FormData();
-        datos.append('nombre', formData.get('nombre'));
-        datos.append('apellido', formData.get('apellido'));
-        datos.append('dni', formData.get('DNI'));
-        datos.append('domicilio', formData.get('domicilio'));
-        datos.append('telefono', formData.get('telefono'));
-        datos.append('area', formData.get('area'));
-        datos.append('correo_electronico', formData.get('correo'));
-        datos.append('rol', formData.get('rol'));
-
-        // Agregar foto de perfil si existe
-        const fotoPerfil = document.getElementById('fotoPerfil').files[0];
-        if (fotoPerfil) {
-            datos.append('fotoPerfil', fotoPerfil);
+        // Si estamos en modo creación, validar contraseña
+        if (!idEmpleado && !validarContrasena(contrasena)) {
+            mostrarError(document.getElementById('contraseña'), 'La contraseña debe tener al menos 8 caracteres');
+            formularioValido = false;
         }
 
-        // Solo incluir contraseña si se proporcionó una nueva
-        const nuevaContraseña = formData.get('contraseña');
-        console.log('Nueva contraseña:', nuevaContraseña); // DEBUG
-        if (nuevaContraseña && nuevaContraseña.trim() !== '') {
-            datos.append('contrasena', nuevaContraseña);
+        if (!idEmpleado && !contrasenasCoinciden(contrasena, confirmarContrasena)) {
+            mostrarError(document.getElementById('confirmarC'), 'Las contraseñas no coinciden');
+            formularioValido = false;
         }
 
-        try {
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-                    // NO incluir 'Content-Type' - FormData lo establece automáticamente
-                },
-                body: datos
+        if (!validarTelefono(telefono)) {
+            mostrarError(document.getElementById('telefono'), 'El teléfono debe tener entre 10 y 15 dígitos');
+            formularioValido = false;
+        }
 
-            });
+        if (!validarEmail(correo)) {
+            mostrarError(document.getElementById('correo'), 'Ingrese un correo electrónico válido');
+            formularioValido = false;
+        }
 
+        if (!validarDNI(dni)) {
+            mostrarError(document.getElementById('DNI'), 'El DNI debe tener 7 u 8 dígitos');
+            formularioValido = false;
+        }
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Error response:', errorText); // DEBUG
-                throw new Error(errorText);
+        if (formularioValido) {
+            const formData = new FormData(formRegistro);
+            const idEmpleado = formData.get('id_empleado');
+            const url = idEmpleado ? `/api/auth/actualizar/${idEmpleado}` : '/api/auth/registrar';
+            const method = idEmpleado ? 'PUT' : 'POST';
+
+            // Crear FormData para enviar con la imagen
+            const datos = new FormData();
+            datos.append('nombre', formData.get('nombre'));
+            datos.append('apellido', formData.get('apellido'));
+            datos.append('dni', formData.get('DNI'));
+            datos.append('domicilio', formData.get('domicilio'));
+            datos.append('telefono', formData.get('telefono'));
+            datos.append('area', formData.get('area'));
+            datos.append('correo_electronico', formData.get('correo'));
+            datos.append('rol', formData.get('rol'));
+
+            // Agregar foto de perfil si existe
+            const fotoPerfil = document.getElementById('fotoPerfil').files[0];
+            if (fotoPerfil) {
+                datos.append('fotoPerfil', fotoPerfil);
             }
 
-              const result = await response.json();
-            console.log('Respuesta del servidor:', result); // DEBUG
+            // Solo incluir contraseña si se proporcionó una nueva
+            const nuevaContraseña = formData.get('contraseña');
+            if (nuevaContraseña && nuevaContraseña.trim() !== '') {
+                datos.append('contrasena', nuevaContraseña);
+            }
 
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+                    },
+                    body: datos
+                });
 
-            alert(idEmpleado ? 'Empleado actualizado con éxito' : 'Usuario registrado con éxito');
-            window.location.href = '../pages/panel-principal.html';
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error al procesar la solicitud: ' + error.message);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    throw new Error(errorText);
+                }
+
+                const result = await response.json();
+                console.log('Respuesta del servidor:', result);
+
+                alert(idEmpleado ? 'Empleado actualizado con éxito' : 'Usuario registrado con éxito');
+                
+                // Redirigir según el origen
+                const originFrom = sessionStorage.getItem('originFrom') || 'panel-principal';
+                if (originFrom === 'lista-usuarios') {
+                    window.location.href = '../pages/lista-usuarios.html';
+                } else {
+                    window.location.href = '../pages/panel-principal.html';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al procesar la solicitud: ' + error.message);
+            }
         }
+    });
+
+    // Verificar si estamos en modo edición (URL tiene parámetro id)
+    if (idEmpleado) {
+        cargarDatosEmpleado(idEmpleado);
     }
-});
-
-// Verificar si estamos en modo edición (URL tiene parámetro id)
-
-if (idEmpleado) {
-    cargarDatosEmpleado(idEmpleado);
-}
-
 });

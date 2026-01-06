@@ -6,6 +6,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     infoUsuario(userData);
 
+    // ===== LÓGICA PARA BOTÓN DE VOLVER DINÁMICO =====
+    // Guardar el origen cuando venimos de panel principal
+    function setVolverOrigin() {
+        const referrer = document.referrer;
+        if (!referrer.includes('lista-usuarios')) {
+            sessionStorage.setItem('originFrom', 'panel-principal');
+        }
+    }
+
+    // Actualizar el botón de volver según el origen
+    function updateBtnVolverUsuarios() {
+        const btnVolver = document.getElementById('btnVolverUsuarios');
+        const origin = sessionStorage.getItem('originFrom') || 'panel-principal';
+        
+        if (origin === 'panel-principal') {
+            btnVolver.href = '../pages/panel-principal.html';
+            btnVolver.title = 'Volver al panel principal';
+        }
+    }
+
     // Guardar origen para el botón volver en form-registro-usuario
     const btnNuevoEmpleado = document.getElementById('btnNuevoEmpleado');
     if (btnNuevoEmpleado) {
@@ -13,10 +33,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         sessionStorage.setItem('originFrom', 'lista-usuarios');
       });
     }
+
+    setVolverOrigin();
+    updateBtnVolverUsuarios();
+
     // Estado en memoria
     let usuariosFuente = [];
     let paginaActual = 1;
     const itemsPorPagina = 10;
+
+    // Elementos DOM
+    const inputBuscar = document.getElementById('buscarUsuario');
+    const filtroArea = document.getElementById('filtroArea');
+    const filtroRol = document.getElementById('filtroRol');
+    const filtroEstado = document.getElementById('filtroEstado');
+    const btnBuscar = document.getElementById('btn-buscar');
+    const btnReset = document.getElementById('btn-reset');
 
     // Función para cargar usuarios
     async function cargarUsuarios() {
@@ -33,6 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             const usuarios = await response.json();
             console.log('Usuarios cargados:', usuarios.map(u => ({ id: u.id_empleado, nombre: u.nombre, area: u.area })));
+            
             // Ordenar por fecha de alta (desc), fallback por id
             usuarios.sort((a, b) => {
                 const fa = a.fecha_alta || a.fecha_registro || a.created_at || null;
@@ -40,6 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (fa && fb) return new Date(fb) - new Date(fa);
                 return (b.id_empleado || 0) - (a.id_empleado || 0);
             });
+            
             usuariosFuente = usuarios;
             poblarFiltros(usuariosFuente);
             aplicarFiltrosYBusqueda();
@@ -64,9 +98,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Actualizar contador total
         document.getElementById('totalEmpleados').textContent = `Cantidad de empleados: ${totalItems}`;
 
+        // Actualizar información de paginación
+        document.getElementById('info-pagina').textContent = `Página ${paginaActual} de ${totalPaginas}`;
+        document.getElementById('btn-anterior').disabled = paginaActual <= 1;
+        document.getElementById('btn-siguiente').disabled = paginaActual >= totalPaginas;
+
         // Mostrar usuarios de la página actual
         usuariosEnPagina.forEach(usuario => {
             const tr = document.createElement('tr');
+            
+            if (!usuario.activo) {
+               tr.classList.add('fila-inactiva');
+            }
             
             tr.innerHTML = `
                 <td>${usuario.nombre || '-'}</td>
@@ -79,16 +122,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <a href="form-registro-usuario.html?id=${usuario.id_empleado}" class="btn-action btn-edit">
                         <i class="fas fa-edit"></i> Editar
                     </a>
-                    ${
-                        usuario.activo
+                    ${usuario.activo
                         ? `<button class="btn-action btn-delete" data-id="${usuario.id_empleado}"><i class="fas fa-trash-alt"></i> Dar de baja</button>`
                         : `<button class="btn-action btn-activate" data-id="${usuario.id_empleado}"><i class="fas fa-user-check"></i> Reactivar</button>`
                     }
                 </td>
             `;
-            if (!usuario.activo) {
-               tr.classList.add('fila-inactiva');
-            }
 
             tbody.appendChild(tr);
         });
@@ -101,22 +140,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('.btn-activate').forEach(btn => {
             btn.addEventListener('click', () => activarUsuario(btn.dataset.id));
         });
-
-        // Renderizar paginación
-        renderizarPaginacion(totalPaginas, totalItems);
     }
 
     // Búsqueda, filtros y sugerencias
-    const inputBuscar = document.getElementById('buscarUsuario');
-    const filtroArea = document.getElementById('filtroArea');
-    const filtroRol = document.getElementById('filtroRol');
-    const filtroEstado = document.getElementById('filtroEstado');
-
     function poblarFiltros(data) {
         if (!data) return;
         // Solo poblamos el filtro de roles ya que las áreas están fijas en el HTML
         const roles = Array.from(new Set(data.map(u => u.rol).filter(Boolean))).sort();
-        if (filtroRol) filtroRol.innerHTML = '<option value="">Todos</option>' + roles.map(r => `<option value="${r}">${r}</option>`).join('');
+        if (filtroRol) {
+            filtroRol.innerHTML = '<option value="">Todos</option>' + 
+                roles.map(r => `<option value="${r}">${r}</option>`).join('');
+        }
     }
 
     function aplicarFiltrosYBusqueda() {
@@ -130,7 +164,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 data = data.filter(u => String(u.dni || '').startsWith(soloNumeros));
             } else {
                 const qLower = q.toLowerCase();
-                data = data.filter(u => (u.nombre || '').toLowerCase().includes(qLower) || (u.apellido || '').toLowerCase().includes(qLower));
+                data = data.filter(u => 
+                    (u.nombre || '').toLowerCase().includes(qLower) || 
+                    (u.apellido || '').toLowerCase().includes(qLower)
+                );
             }
         }
 
@@ -162,6 +199,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const contId = 'buscarSugerencias';
         let cont = document.getElementById(contId);
         if (!inputBuscar) return;
+        
         if (!cont) {
             cont = document.createElement('div');
             cont.id = contId;
@@ -176,6 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             cont.style.maxHeight = '260px';
             cont.style.overflowY = 'auto';
             cont.style.display = 'none';
+            
             const group = inputBuscar.closest('.input-group');
             if (group) {
                 group.style.position = 'relative';
@@ -188,22 +227,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             cont.innerHTML = '';
             return;
         }
+        
         const sample = dataFiltrada.slice(0, 8);
         if (sample.length === 0) {
             cont.style.display = 'none';
             cont.innerHTML = '';
             return;
         }
+        
         cont.innerHTML = sample.map((u, idx) => `
             <button type="button" class="list-group-item list-group-item-action" data-idx="${idx}" style="display:block;width:100%;text-align:left;">
-                <div class=\"d-flex justify-content-between\"> 
+                <div class="d-flex justify-content-between"> 
                     <span>${u.apellido || ''} ${u.nombre || ''}</span>
-                    <small class=\"text-muted\">${u.dni || ''}</small>
+                    <small class="text-muted">${u.dni || ''}</small>
                 </div>
             </button>
         `).join('');
+        
         cont.className = 'list-group';
         cont.style.display = 'block';
+        
         Array.from(cont.querySelectorAll('button')).forEach((btn, idx) => {
             btn.addEventListener('click', () => {
                 const u = sample[idx];
@@ -215,12 +258,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    const debouncedBuscar = crearDebounce(() => aplicarFiltrosYBusquedaConReset(), 200);
-    inputBuscar?.addEventListener('input', debouncedBuscar);
-    filtroArea?.addEventListener('change', aplicarFiltrosYBusquedaConReset);
-    filtroRol?.addEventListener('change', aplicarFiltrosYBusquedaConReset);
-    filtroEstado?.addEventListener('change', aplicarFiltrosYBusquedaConReset);
-
+    // Función para crear debounce
     function crearDebounce(fn, delay) {
         let t;
         return function() {
@@ -229,70 +267,63 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
     }
 
-    // Función para renderizar la paginación
-    function renderizarPaginacion(totalPaginas, totalItems) {
-        const containerPaginas = document.getElementById('paginasContainer');
-        const btnPrev = document.getElementById('btnPrevPagina');
-        const btnNext = document.getElementById('btnNextPagina');
-        
-        containerPaginas.innerHTML = '';
+    const debouncedBuscar = crearDebounce(() => aplicarFiltrosYBusquedaConReset(), 200);
+    
+    // Event Listeners
+    if (inputBuscar) {
+        inputBuscar.addEventListener('input', debouncedBuscar);
+    }
+    
+    if (filtroArea) {
+        filtroArea.addEventListener('change', aplicarFiltrosYBusquedaConReset);
+    }
+    
+    if (filtroRol) {
+        filtroRol.addEventListener('change', aplicarFiltrosYBusquedaConReset);
+    }
+    
+    if (filtroEstado) {
+        filtroEstado.addEventListener('change', aplicarFiltrosYBusquedaConReset);
+    }
 
-        // Mostrar botones de paginación solo si hay más de una página
-        if (totalPaginas > 1) {
-            // Botón anterior
-            if (paginaActual > 1) {
-                btnPrev.style.display = 'block';
-                btnPrev.onclick = null; // Limpiar onclick anterior
-                btnPrev.removeEventListener('click', btnPrev._clickHandler);
-                btnPrev._clickHandler = () => irAPagina(paginaActual - 1);
-                btnPrev.addEventListener('click', btnPrev._clickHandler);
-            } else {
-                btnPrev.style.display = 'none';
-            }
+    if (btnBuscar) {
+        btnBuscar.addEventListener('click', aplicarFiltrosYBusquedaConReset);
+    }
 
-            // Números de página
-            for (let i = 1; i <= totalPaginas; i++) {
-                const btnPagina = document.createElement('button');
-                btnPagina.className = 'btn-numero-pagina';
-                btnPagina.type = 'button';
-                btnPagina.textContent = i;
-                
-                if (i === paginaActual) {
-                    btnPagina.classList.add('activa');
-                    btnPagina.style.cssText = 'background-color: #4CAF50; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;';
-                } else {
-                    btnPagina.style.cssText = 'background-color: #f0f0f0; border: 1px solid #ddd; padding: 8px 12px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s;';
-                    btnPagina.onmouseover = () => btnPagina.style.backgroundColor = '#e0e0e0';
-                    btnPagina.onmouseout = () => btnPagina.style.backgroundColor = '#f0f0f0';
-                }
-                
-                btnPagina.addEventListener('click', () => irAPagina(i));
-                containerPaginas.appendChild(btnPagina);
+    if (btnReset) {
+        btnReset.addEventListener('click', () => {
+            if (inputBuscar) inputBuscar.value = '';
+            if (filtroArea) filtroArea.value = '';
+            if (filtroRol) filtroRol.value = '';
+            if (filtroEstado) filtroEstado.value = '';
+            
+            // Resetear select de roles
+            if (filtroRol) {
+                const roles = Array.from(new Set(usuariosFuente.map(u => u.rol).filter(Boolean))).sort();
+                filtroRol.innerHTML = '<option value="">Todos</option>' + 
+                    roles.map(r => `<option value="${r}">${r}</option>`).join('');
             }
+            
+            aplicarFiltrosYBusquedaConReset();
+        });
+    }
 
-            // Botón siguiente
-            if (paginaActual < totalPaginas) {
-                btnNext.style.display = 'block';
-                btnNext.onclick = null; // Limpiar onclick anterior
-                btnNext.removeEventListener('click', btnNext._clickHandler);
-                btnNext._clickHandler = () => irAPagina(paginaActual + 1);
-                btnNext.addEventListener('click', btnNext._clickHandler);
-            } else {
-                btnNext.style.display = 'none';
-            }
-        } else {
-            btnPrev.style.display = 'none';
-            btnNext.style.display = 'none';
+    // Event Listeners para paginación
+    document.getElementById('btn-anterior')?.addEventListener('click', () => {
+        if (paginaActual > 1) {
+            paginaActual--;
+            aplicarFiltrosYBusqueda();
         }
-    }
+    });
 
-    // Función para ir a una página específica
-    function irAPagina(numPagina) {
-        paginaActual = numPagina;
-        aplicarFiltrosYBusqueda();
-        // Scroll al inicio de la tabla
-        document.querySelector('#usuariosTable').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    document.getElementById('btn-siguiente')?.addEventListener('click', () => {
+        const totalItems = usuariosFuente.length;
+        const totalPaginas = Math.ceil(totalItems / itemsPorPagina);
+        if (paginaActual < totalPaginas) {
+            paginaActual++;
+            aplicarFiltrosYBusqueda();
+        }
+    });
 
     // Función para eliminar usuario
     async function desactivarUsuario(id) {
@@ -311,14 +342,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             alert('Usuario dado de baja con éxito');
-            cargarUsuarios(); // o refrescar tabla
+            cargarUsuarios();
         } catch (error) {
             console.error('Error:', error);
             alert('Error al dar de baja al usuario: ' + error.message);
         }
     }
 
-    // dar de alta
+    // Función para dar de alta usuario
     async function activarUsuario(id) {
         try {
             const response = await fetch(`/api/auth/activar/${id}`, {
@@ -333,20 +364,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             alert('Usuario dado de alta con éxito');
-            cargarUsuarios(); // o refrescar tabla
+            cargarUsuarios();
         } catch (error) {
             console.error('Error:', error);
             alert('Error al dar de alta al usuario: ' + error.message);
         }
     }
 
-
-    // Cargar usuarios al iniciar
-    cargarUsuarios();
-
     // Manejar cierre de sesión
     document.querySelector('.logout-btn').addEventListener('click', () => {
         sessionStorage.removeItem('token');
         window.location.href = "login.html";
     });
+
+    // Cargar usuarios al iniciar
+    await cargarUsuarios();
 });

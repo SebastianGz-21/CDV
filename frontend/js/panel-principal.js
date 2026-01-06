@@ -1,4 +1,4 @@
-import { checkAuth, infoUsuario, checkUserRole } from '../auth.js'; 
+import { checkAuth, infoUsuario, checkUserRole } from '../auth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const userData = checkAuth();
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ===== LÓGICA PARA GUARDAR ORIGEN =====
   // Cuando se hace clic en botones que redirigen a páginas de lista
-  const allButtons = document.querySelectorAll('.admin-btn, .submenu a, .fila-botones a');
+  const allButtons = document.querySelectorAll('.admin-btn, .area-btn');
   allButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       // Si es un enlace a lista-comercios, lista-transportes, bromatologia o form-registro-usuario
